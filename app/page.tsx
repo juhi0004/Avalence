@@ -1,14 +1,21 @@
 import HeroSection from "@/components/HeroSection";
+import ClientsSection from "@/components/ClientsSection";
 import ServicesSection from "@/components/ServicesSection";
+import CTASection from "@/components/CTASection";
+import BlogSection from "@/components/BlogSection";
+import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
     <>
       <HeroSection />
+      <ClientsSection />
       <ServicesSection />
-
-      <section id="blog" className="min-h-screen" />
-      <section id="contact" className="min-h-screen" />
+      <CTASection />
+      <BlogSection />
+      <ContactSection />
+      <Footer />
     </>
   );
 }

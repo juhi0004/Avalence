@@ -127,3 +127,6 @@ button {
   background: rgba(108, 99, 255, 0.4);
   color: #ffffff;
 }
+
+html { scroll-behavior: smooth; }
+
