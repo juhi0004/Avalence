@@ -9,97 +9,175 @@ interface BrainParticlesProps {
   burstTrigger: number;
 }
 
-const PARTICLE_COUNT = 8000;
+const PARTICLE_COUNT = 15000;
+
+function generateBrainPositions(): {
+  originalPositions: Float32Array;
+  burstTargets: Float32Array;
+  colors: Float32Array;
+} {
+  const origPos = new Float32Array(PARTICLE_COUNT * 3);
+  const burst = new Float32Array(PARTICLE_COUNT * 3);
+  const colors = new Float32Array(PARTICLE_COUNT * 3);
+
+  // Holographic glowing colors
+  const colTop = new THREE.Color("#C4C0FF");
+  const colMid = new THREE.Color("#9D97FF");
+  const colBottom = new THREE.Color("#6C63FF");
+  const colHighlight = new THREE.Color("#ffffff");
+
+  function isInsideBrain(x: number, y: number, z: number) {
+    // Longitudinal fissure (split between hemispheres)
+    if (Math.abs(z) < 0.04 && y > -0.2) return false;
+
+    // Main Cerebrum
+    let nx = x / 1.2;
+    let ny = (y - 0.2) / 0.9;
+    let nz = z / 0.65;
+    
+    if (ny < 0) ny *= 1.2; // flatten bottom of cerebrum
+    if (nx < 0) nx *= 0.9; // blunt frontal lobe
+    
+    let d_cerebrum = Math.sqrt(nx*nx + ny*ny + nz*nz);
+    
+    // Procedural wrinkles (sulci/gyri)
+    let theta = Math.atan2(y - 0.2, x);
+    let phi = Math.atan2(z, Math.sqrt(x*x + y*y));
+    let wrinkle = 0.04 * Math.sin(theta * 25) * Math.cos(phi * 18) 
+                + 0.02 * Math.sin(theta * 35);
+    
+    if (d_cerebrum + wrinkle < 1.0) return true;
+
+    // Cerebellum (back-bottom lobe)
+    let cx = (x - 0.75) / 0.45;
+    let cy = (y + 0.45) / 0.35;
+    let cz = z / 0.5;
+    let d_cerebellum = Math.sqrt(cx*cx + cy*cy + cz*cz);
+    let cb_wrinkle = 0.04 * Math.sin(cy * 40);
+    if (d_cerebellum + cb_wrinkle < 1.0) return true;
+
+    // Brain stem
+    let sx = (x - 0.35 + (y + 0.3) * 0.2) / 0.18; 
+    let sy = y;
+    let sz = z / 0.18;
+    if (sy < -0.2 && sy > -1.2) {
+      let d_stem = Math.sqrt(sx*sx + sz*sz);
+      if (d_stem < 1.0) return true;
+    }
+
+    return false;
+  }
+
+  const rawPoints: THREE.Vector3[] = [];
+  let minX = Infinity, maxX = -Infinity;
+  let minY = Infinity, maxY = -Infinity;
+  let minZ = Infinity, maxZ = -Infinity;
+
+  // Rejection sampling for perfect biological silhouette
+  while (rawPoints.length < PARTICLE_COUNT) {
+    let x = (Math.random() - 0.5) * 4;
+    let y = (Math.random() - 0.5) * 4;
+    let z = (Math.random() - 0.5) * 2.5;
+    
+    if (isInsideBrain(x, y, z)) {
+      rawPoints.push(new THREE.Vector3(x, y, z));
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
+    }
+  }
+
+  // Calculate center of mass
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const cz = (minZ + maxZ) / 2;
+
+  // INCREASED SIZE (Multiplier)
+  const SCALE = 1.45;
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const p = rawPoints[i];
+    
+    // Center and scale perfectly
+    const px = (p.x - cx) * SCALE;
+    const py = (p.y - cy) * SCALE;
+    const pz = (p.z - cz) * SCALE;
+
+    origPos[i * 3] = px;
+    origPos[i * 3 + 1] = py;
+    origPos[i * 3 + 2] = pz;
+
+    // Burst targets (explode outwards from center)
+    const dir = new THREE.Vector3(px, py, pz).normalize();
+    const force = 2 + Math.random() * 8;
+    burst[i * 3] = px + dir.x * force;
+    burst[i * 3 + 1] = py + dir.y * force;
+    burst[i * 3 + 2] = pz + dir.z * force;
+
+    // Gradient calculation
+    const yNorm = THREE.MathUtils.clamp((py + 1.8) / 3.6, 0, 1);
+    let col = yNorm > 0.5
+      ? colTop.clone().lerp(colMid, (1 - yNorm) * 2)
+      : colMid.clone().lerp(colBottom, (0.5 - yNorm) * 2);
+
+    // Create bright neural network "nodes" (12% of particles)
+    if (Math.random() < 0.12) {
+      col.lerp(colHighlight, 0.7);
+    }
+
+    colors[i * 3] = col.r;
+    colors[i * 3 + 1] = col.g;
+    colors[i * 3 + 2] = col.b;
+  }
+
+  return { originalPositions: origPos, burstTargets: burst, colors };
+}
 
 export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
   const pointsRef = useRef<THREE.Points>(null);
   const materialRef = useRef<THREE.PointsMaterial>(null);
   const isBursting = useRef(false);
 
-  /* ── Generate brain-shaped particle positions ── */
-  const { originalPositions, burstTargets } = useMemo(() => {
-    const origPos = new Float32Array(PARTICLE_COUNT * 3);
-    const burst = new Float32Array(PARTICLE_COUNT * 3);
+  const { originalPositions, burstTargets, colors } = useMemo(
+    () => generateBrainPositions(),
+    []
+  );
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-
-      const nx = Math.sin(phi) * Math.cos(theta);
-      const ny = Math.cos(phi);
-      const nz = Math.sin(phi) * Math.sin(theta);
-
-      /* Wrinkle noise (brain folds) */
-      const wrinkle =
-        Math.sin(theta * 8) * Math.sin(phi * 6) * 0.07 +
-        Math.sin(theta * 3 + phi * 5) * 0.04 +
-        Math.sin(phi * 15) * 0.02;
-
-      const r = 1.5 + wrinkle;
-      let x = nx * r;
-      let y = ny * r;
-      const z = nz * r;
-
-      /* Hemisphere separation (central fissure) */
-      x += nx > 0 ? 0.18 : -0.18;
-
-      /* Flatten Y slightly */
-      y *= 0.82;
-
-      origPos[i * 3] = x;
-      origPos[i * 3 + 1] = y;
-      origPos[i * 3 + 2] = z;
-
-      /* Random burst targets (outward explosion) */
-      const bR = 3 + Math.random() * 5;
-      const bTheta = Math.random() * Math.PI * 2;
-      const bPhi = Math.acos(2 * Math.random() - 1);
-      burst[i * 3] = Math.sin(bPhi) * Math.cos(bTheta) * bR;
-      burst[i * 3 + 1] = Math.cos(bPhi) * bR;
-      burst[i * 3 + 2] = Math.sin(bPhi) * Math.sin(bTheta) * bR;
-    }
-
-    return { originalPositions: origPos, burstTargets: burst };
-  }, []);
-
-  /* ── Build geometry once ── */
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(originalPositions);
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(originalPositions), 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     return geo;
-  }, [originalPositions]);
+  }, [originalPositions, colors]);
 
-  /* ── Rotation + breathing ── */
   useFrame(({ clock }) => {
     if (!pointsRef.current) return;
-    pointsRef.current.rotation.y += 0.0008;
-
+    
     if (!isBursting.current) {
-      const breathe = 1.0 + 0.04 * Math.sin(clock.elapsedTime * 0.7);
+      const breathe = 1.0 + 0.03 * Math.sin(clock.elapsedTime * 0.6);
       pointsRef.current.scale.setScalar(breathe);
     }
   });
 
-  /* ── Burst effect ── */
+  // Burst Effect Interaction
   useEffect(() => {
     if (burstTrigger === 0 || !pointsRef.current || isBursting.current) return;
-    isBursting.current = true;
-
-    const posAttr = pointsRef.current.geometry.attributes
-      .position as THREE.BufferAttribute;
-    const arr = posAttr.array as Float32Array;
 
     const reducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (reducedMotion) {
-      isBursting.current = false;
-      return;
-    }
+    if (reducedMotion) return;
 
-    /* Phase 1 — Explode */
+    isBursting.current = true;
+
+    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const arr = posAttr.array as Float32Array;
+
+    // Phase 1 - Explode
     const proxy = { t: 0 };
     gsap.to(proxy, {
       t: 1,
@@ -107,29 +185,18 @@ export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
       ease: "power2.out",
       onUpdate: () => {
         for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-          arr[i] =
-            originalPositions[i] +
-            (burstTargets[i] - originalPositions[i]) * proxy.t;
+          arr[i] = originalPositions[i] + (burstTargets[i] - originalPositions[i]) * proxy.t;
         }
         posAttr.needsUpdate = true;
       },
     });
 
-    /* Color: violet → white, then fade */
     if (materialRef.current) {
-      gsap.to(materialRef.current.color, {
-        r: 1,
-        g: 1,
-        b: 1,
-        duration: 1.0,
-      });
-      gsap.to(materialRef.current, {
-        opacity: 0.3,
-        duration: 1.2,
-      });
+      gsap.to(materialRef.current.color, { r: 1, g: 1, b: 1, duration: 1.0 });
+      gsap.to(materialRef.current, { opacity: 0.25, duration: 1.2 });
     }
 
-    /* Phase 2 — Return after 1.4s */
+    // Phase 2 - Return
     const timer = setTimeout(() => {
       const ret = { t: 1 };
       gsap.to(ret, {
@@ -138,9 +205,7 @@ export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
         ease: "elastic.out(1, 0.4)",
         onUpdate: () => {
           for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-            arr[i] =
-              originalPositions[i] +
-              (burstTargets[i] - originalPositions[i]) * ret.t;
+            arr[i] = originalPositions[i] + (burstTargets[i] - originalPositions[i]) * ret.t;
           }
           posAttr.needsUpdate = true;
         },
@@ -150,13 +215,8 @@ export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
       });
 
       if (materialRef.current) {
-        gsap.to(materialRef.current.color, {
-          r: 0.545,
-          g: 0.498,
-          b: 1.0,
-          duration: 1.5,
-        });
-        gsap.to(materialRef.current, { opacity: 1.0, duration: 1.5 });
+        gsap.to(materialRef.current.color, { r: 1, g: 1, b: 1, duration: 1.5 });
+        gsap.to(materialRef.current, { opacity: 0.95, duration: 1.5 });
       }
     }, 1400);
 
@@ -164,21 +224,23 @@ export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
   }, [burstTrigger, originalPositions, burstTargets]);
 
   return (
-    <group>
+    <>
+      <ambientLight color="#6C63FF" intensity={1.5} />
+      <pointLight position={[2, 2, 2]} color="#ffffff" intensity={0.8} />
+      <pointLight position={[-2, -1, -2]} color="#4A3FBF" intensity={0.5} />
+      
       <points ref={pointsRef} geometry={geometry}>
         <pointsMaterial
           ref={materialRef}
-          color="#8B7FFF"
-          size={0.012}
+          size={0.01}
           sizeAttenuation
           transparent
-          opacity={1}
+          opacity={0.95}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
+          vertexColors
         />
       </points>
-      <pointLight position={[0, 0, 2]} color="#6C63FF" intensity={2} />
-      <ambientLight intensity={0.1} />
-    </group>
+    </>
   );
 }

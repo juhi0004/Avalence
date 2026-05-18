@@ -1,24 +1,16 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
 import BrainParticles from "./BrainParticles";
 
-interface BrainSceneProps {
-  burstTrigger: number;
-}
-
-export default function BrainScene({ burstTrigger }: BrainSceneProps) {
+export default function BrainScene({ burstTrigger }: { burstTrigger: number }) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 4.5], fov: 55 }}
-      dpr={[1, 2]}
+      camera={{ position: [0, 0.2, 3.8], fov: 60 }}
       gl={{ antialias: true, alpha: true }}
       style={{ background: "transparent" }}
     >
-      <Suspense fallback={null}>
-        <BrainParticles burstTrigger={burstTrigger} />
-      </Suspense>
+      <BrainParticles burstTrigger={burstTrigger} />
     </Canvas>
   );
 }

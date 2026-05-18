@@ -13,124 +13,166 @@ const BrainScene = dynamic(() => import("./three/BrainScene"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[#6C63FF] border-t-transparent rounded-full animate-spin" />
     </div>
   ),
 });
 
 /* ── Stats data ── */
 const STATS = [
-  { value: "50+", label: "Projects Delivered" },
-  { value: "100%", label: "Client Satisfaction" },
-  { value: "24/7", label: "Support Available" },
+  { value: "50+",  label: "Projects Delivered"  },
+  { value: "100%", label: "Client Satisfaction"  },
+  { value: "24/7", label: "Support Available"    },
 ] as const;
 
 export default function HeroSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const watermarkRef = useRef<HTMLDivElement>(null);
+  const sectionRef    = useRef<HTMLElement>(null);
+  const watermarkRef  = useRef<HTMLDivElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
-  const subRef = useRef<HTMLParagraphElement>(null);
-  const ctaRef = useRef<HTMLButtonElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
+  const headlineRef   = useRef<HTMLHeadingElement>(null);
+  const subRef        = useRef<HTMLParagraphElement>(null);
+  const ctaRef        = useRef<HTMLButtonElement>(null);
+  const statsRef      = useRef<HTMLDivElement>(null);
 
   const [burstTrigger, setBurstTrigger] = useState(0);
-  const [showGlow, setShowGlow] = useState(false);
-  const [showHint, setShowHint] = useState(true);
+  const [showGlow,     setShowGlow]     = useState(false);
+  const [showHint,     setShowHint]     = useState(true);
+  const [hintVisible,  setHintVisible]  = useState(false); // delayed show
 
-  /* ── Handle brain click → burst + glow ── */
+  /* ── Brain click handler ── */
   const handleBurst = () => {
     setBurstTrigger((p) => p + 1);
     setShowGlow(true);
     setShowHint(false);
+    setHintVisible(false);
     setTimeout(() => setShowGlow(false), 600);
   };
 
-  /* ── GSAP entrance animations ── */
+  /* ── GSAP master timeline ── */
   useEffect(() => {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
     if (reducedMotion) {
-      /* Make everything visible immediately */
-      [canvasWrapRef, headlineRef, subRef, ctaRef].forEach((r) => {
-        if (r.current) {
-          r.current.style.opacity = "1";
-          r.current.style.transform = "none";
-          r.current.style.clipPath = "none";
-        }
-      });
+      // Snap everything visible
+      if (watermarkRef.current)  watermarkRef.current.style.opacity  = "0.04";
+      if (canvasWrapRef.current) canvasWrapRef.current.style.opacity  = "1";
+      if (headlineRef.current)   { headlineRef.current.style.opacity  = "1"; headlineRef.current.style.transform = "none"; }
+      if (subRef.current)        subRef.current.style.opacity        = "1";
+      if (ctaRef.current)        ctaRef.current.style.opacity        = "1";
       if (statsRef.current) {
         Array.from(statsRef.current.children).forEach((c) => {
           (c as HTMLElement).style.opacity = "1";
         });
       }
+      setHintVisible(true);
       return;
     }
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      /* 1 — Brain canvas */
+      /* ────────────────────────────────────────────────
+         STEP 1 — "AVALENCE" enters full white (t=0)
+         watermarkRef starts at: opacity 0, scale 1
+         Animate → opacity 1 over 0.6s
+      ──────────────────────────────────────────────── */
       tl.fromTo(
-        canvasWrapRef.current,
-        { scale: 0.6, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.4 },
+        watermarkRef.current,
+        { opacity: 0, scale: 1 },
+        { opacity: 1,  scale: 1, duration: 0.6 },
         0
       );
 
-      /* 2 — Headline clip-path reveal */
+      /* ────────────────────────────────────────────────
+         STEP 2 — After 0.8s: "AVALENCE" sinks into bg
+         Scale 1 → 1.3, opacity 1 → 0.04, duration 1.2s
+      ──────────────────────────────────────────────── */
+      tl.to(
+        watermarkRef.current,
+        {
+          scale:    1.3,
+          opacity:  0.04,
+          duration: 1.2,
+          ease:     "power2.inOut",
+          onComplete: () => {
+            // Lock it here permanently as decorative watermark
+            if (watermarkRef.current) {
+              watermarkRef.current.style.zIndex = "0";
+            }
+          },
+        },
+        0.8
+      );
+
+      /* ────────────────────────────────────────────────
+         STEP 3 — Brain canvas fades in as watermark sinks
+      ──────────────────────────────────────────────── */
+      tl.fromTo(
+        canvasWrapRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 1.0 },
+        1.2
+      );
+
+      /* STEP 3b — Headline */
       tl.fromTo(
         headlineRef.current,
-        { clipPath: "inset(100% 0 0 0)", opacity: 1 },
-        { clipPath: "inset(0% 0 0 0)", duration: 1 },
-        0.4
+        { y: 30, opacity: 0 },
+        { y: 0,  opacity: 1, duration: 0.9 },
+        1.5
       );
 
-      /* 3 — Subheadline */
+      /* STEP 3c — Subheadline */
       tl.fromTo(
         subRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8 },
-        0.7
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0,  duration: 0.8 },
+        1.7
       );
 
-      /* 4 — CTA */
+      /* STEP 3d — CTA button */
       tl.fromTo(
         ctaRef.current,
         { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.7 },
-        0.9
+        { opacity: 1, y: 0,  duration: 0.7 },
+        1.9
       );
 
-      /* 5 — Stats stagger */
+      /* STEP 3e — Stats stagger */
       if (statsRef.current) {
         tl.fromTo(
           statsRef.current.children,
           { opacity: 0, y: 12 },
           { opacity: 1, y: 0, duration: 0.6, stagger: 0.15 },
-          1.1
+          2.1
         );
       }
 
-      /* Watermark scroll fade */
-      if (watermarkRef.current) {
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "30% top",
-          scrub: true,
-          animation: gsap.fromTo(
-            watermarkRef.current,
-            { opacity: 0.04 },
-            { opacity: 0 }
-          ),
-        });
-      }
+      /* ────────────────────────────────────────────────
+         Scroll — watermark continues fading from 0.04 → 0
+      ──────────────────────────────────────────────── */
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start:   "top top",
+        end:     "30% top",
+        scrub:   true,
+        animation: gsap.fromTo(
+          watermarkRef.current,
+          { opacity: 0.04 },
+          { opacity: 0    }
+        ),
+      });
     }, sectionRef);
 
-    return () => ctx.revert();
+    // Show "click to awaken" hint after brain has faded in (~2.4s)
+    const hintTimer = setTimeout(() => setHintVisible(true), 2600);
+
+    return () => {
+      ctx.revert();
+      clearTimeout(hintTimer);
+    };
   }, []);
 
   /* ── Smooth scroll to contact ── */
@@ -143,53 +185,59 @@ export default function HeroSection() {
     <section
       id="home"
       ref={sectionRef}
-      className="relative h-screen w-full overflow-hidden bg-black flex flex-col items-center justify-center"
+      className="relative w-full bg-black overflow-x-hidden flex flex-col items-center justify-between"
+      style={{ minHeight: "max(100vh, 900px)", paddingTop: "72px" }}
     >
-      {/* ── Watermark ── */}
+      {/* ── AVALENCE Watermark ── */}
       <div
         ref={watermarkRef}
         aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0"
-        style={{ opacity: 0.04 }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+        style={{ opacity: 0, zIndex: 20 }}
       >
         <span
           className="font-black text-white whitespace-nowrap"
           style={{
-            fontSize: "clamp(80px, 14vw, 180px)",
-            letterSpacing: "0.06em",
+            fontSize:      "clamp(100px, 18vw, 220px)",
+            fontWeight:    900,
+            letterSpacing: "0.08em",
           }}
         >
           AVALENCE
         </span>
       </div>
 
-      {/* ── 3D Canvas ── */}
+      {/* ── 3D Brain Canvas ── */}
       <div
         ref={canvasWrapRef}
         onClick={handleBurst}
-        className="relative w-full cursor-pointer z-10"
-        style={{ height: "55vh", opacity: 0 }}
+        className="relative w-full cursor-pointer z-10 flex-shrink-0"
+        style={{ height: "50vh", opacity: 0 }}
       >
         <BrainScene burstTrigger={burstTrigger} />
-
-        {/* Click hint */}
-        <AnimatePresence>
-          {showHint && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.3 } }}
-              transition={{ delay: 2, duration: 0.6 }}
-              className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs tracking-widest uppercase"
-              style={{ color: "rgba(255,255,255,0.35)" }}
-            >
-              <span className="inline-block animate-pulse">
-                click to awaken
-              </span>
-            </motion.p>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* ── "Click to Awaken" Hint (16px below canvas) ── */}
+      <AnimatePresence>
+        {showHint && hintVisible && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.4 } }}
+            className="z-10 text-center select-none pointer-events-none"
+            style={{
+              fontSize:      "12px",
+              color:         "rgba(255,255,255,0.3)",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              marginTop:     "16px",
+              animation:     "hintPulse 2s ease-in-out infinite",
+            }}
+          >
+            click to awaken ↓
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       {/* ── Glow Flash ── */}
       <AnimatePresence>
@@ -210,20 +258,40 @@ export default function HeroSection() {
       </AnimatePresence>
 
       {/* ── Text Content ── */}
-      <div className="relative z-10 text-center px-6 -mt-4 max-w-3xl mx-auto">
+      <div className="relative z-10 text-center px-6 flex flex-col items-center">
         <h1
           ref={headlineRef}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-4"
-          style={{ clipPath: "inset(100% 0 0 0)" }}
+          className="font-bold tracking-tight text-white"
+          style={{
+            fontSize:   "clamp(36px, 5vw, 64px)",
+            lineHeight: 1.15,
+            maxWidth:   "800px",
+            opacity:    0,
+          }}
         >
           Building Intelligent Solutions{" "}
-          <span className="text-gradient">That Matter</span>
+          <span
+            style={{
+              background:             "linear-gradient(135deg, #6C63FF, #4A3FBF)",
+              WebkitBackgroundClip:   "text",
+              WebkitTextFillColor:    "transparent",
+              backgroundClip:         "text",
+            }}
+          >
+            That Matter
+          </span>
         </h1>
 
         <p
           ref={subRef}
-          className="text-sm sm:text-base md:text-lg max-w-xl mx-auto mb-8 leading-relaxed"
-          style={{ color: "rgba(255,255,255,0.55)", opacity: 0 }}
+          style={{
+            fontSize:   "17px",
+            color:      "rgba(255,255,255,0.55)",
+            maxWidth:   "560px",
+            margin:     "16px auto 0",
+            lineHeight: 1.7,
+            opacity:    0,
+          }}
         >
           We empower organizations with AI that turns complex challenges into
           real-world outcomes.
@@ -233,12 +301,12 @@ export default function HeroSection() {
           ref={ctaRef}
           onClick={scrollToContact}
           className="
-            inline-flex items-center gap-2
+            inline-flex items-center gap-2 mt-8
             px-7 py-3 rounded-full
-            bg-primary text-white text-sm font-semibold
+            bg-[#6C63FF] text-white text-sm font-semibold
             transition-all duration-300
             hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
-            hover:brightness-110
+            hover:bg-[#5a52e0]
             active:scale-[0.97]
           "
           style={{ opacity: 0 }}
@@ -248,36 +316,50 @@ export default function HeroSection() {
         </button>
       </div>
 
-      {/* ── Stats Bar ── */}
+      {/* ── Stats Row ── */}
       <div
         ref={statsRef}
-        className="
-          absolute bottom-0 left-0 w-full z-10
-          border-t border-white/[0.06]
-          grid grid-cols-3
-        "
+        className="relative z-10 w-full flex flex-wrap justify-center items-center
+          border-t border-white/[0.06]"
+        style={{ gap: "0", paddingBottom: "0" }}
       >
         {STATS.map((stat, i) => (
           <div
             key={stat.label}
-            className={`
-              flex flex-col items-center justify-center py-5 md:py-6
-              ${i < STATS.length - 1 ? "border-r border-white/[0.06]" : ""}
-            `}
-            style={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center py-6 px-8 sm:px-12"
+            style={{
+              opacity:     0,
+              textAlign:   "center",
+              borderRight: i < STATS.length - 1 ? "1px solid rgba(255,255,255,0.1)" : "none",
+            }}
           >
-            <span className="text-lg sm:text-xl md:text-2xl font-bold text-white">
+            <span
+              className="text-white"
+              style={{ fontSize: "36px", fontWeight: 800, lineHeight: 1 }}
+            >
               {stat.value}
             </span>
             <span
-              className="text-[10px] sm:text-xs md:text-sm tracking-wide mt-1"
-              style={{ color: "rgba(255,255,255,0.45)" }}
+              style={{
+                fontSize:   "13px",
+                color:      "rgba(255,255,255,0.5)",
+                marginTop:  "4px",
+                whiteSpace: "nowrap",
+              }}
             >
               {stat.label}
             </span>
           </div>
         ))}
       </div>
+
+      {/* ── CSS for hint pulse ── */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes hintPulse {
+          0%, 100% { opacity: 0.2; }
+          50%       { opacity: 0.6; }
+        }
+      `}} />
     </section>
   );
 }
