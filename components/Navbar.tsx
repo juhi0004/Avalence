@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 const NAV_LINKS = [
   { label: "Home",     href: "#home"     },
@@ -14,6 +16,44 @@ export default function Navbar() {
   const [scrolled,       setScrolled]       = useState(false);
   const [mobileOpen,     setMobileOpen]     = useState(false);
   const [activeSection,  setActiveSection]  = useState("home");
+
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const hoverUnderlineRef = useRef<HTMLDivElement>(null);
+
+  const updateUnderline = (target: HTMLElement, animate = true) => {
+    if (!hoverUnderlineRef.current) return;
+    gsap.to(hoverUnderlineRef.current, {
+      left: target.offsetLeft,
+      width: target.offsetWidth,
+      opacity: 1,
+      duration: animate ? 0.35 : 0,
+      ease: "power2.out",
+    });
+  };
+
+  const handleMouseLeaveContainer = () => {
+    if (!navContainerRef.current) return;
+    const activeBtn = navContainerRef.current.querySelector(`.nav-btn-active`) as HTMLElement;
+    if (activeBtn) {
+      updateUnderline(activeBtn, true);
+    } else {
+      gsap.to(hoverUnderlineRef.current, { opacity: 0, duration: 0.25 });
+    }
+  };
+
+  // Sync underline position with activeSection changes
+  useEffect(() => {
+    if (!navContainerRef.current) return;
+    const activeBtn = navContainerRef.current.querySelector(`.nav-btn-active`) as HTMLElement;
+    if (activeBtn) {
+      // Small timeout to ensure offsets are loaded
+      setTimeout(() => {
+        if (activeBtn) updateUnderline(activeBtn, true);
+      }, 50);
+    } else {
+      gsap.to(hoverUnderlineRef.current, { opacity: 0, duration: 0.25 });
+    }
+  }, [activeSection]);
 
   /* ── Scroll detection ── */
   useEffect(() => {
@@ -65,8 +105,6 @@ export default function Navbar() {
         style={{ height: "72px" }}
         className={`
           fixed top-0 left-0 w-full z-50
-          flex items-center
-          px-12
           transition-all duration-300
           ${scrolled
             ? "bg-black/70 backdrop-blur-md border-b border-white/[0.06] shadow-[0_1px_30px_rgba(108,99,255,0.05)]"
@@ -74,84 +112,100 @@ export default function Navbar() {
           }
         `}
       >
-        {/* Logo — far left */}
-        <button
-          onClick={() => scrollTo("#home")}
-          className="flex items-center select-none group shrink-0"
-          aria-label="Scroll to top"
-        >
-          <span
-            className="text-white transition-colors duration-300 group-hover:text-white/90"
-            style={{ fontSize: "18px", fontWeight: 800, letterSpacing: "0.15em" }}
-          >
-            AVALENCE
-          </span>
-          <span className="inline-block w-[6px] h-[6px] rounded-full bg-[#6C63FF] ml-[3px] mb-[1px] self-end
-            transition-shadow duration-300 group-hover:shadow-[0_0_10px_rgba(108,99,255,0.7)]" />
-        </button>
-
-        {/* Spacer — pushes links to center */}
-        <div className="flex-1" />
-
-        {/* Desktop Nav Links — centered */}
-        <div className="hidden md:flex items-center gap-10">
-          {NAV_LINKS.map((link) => {
-            const isActive = activeSection === link.href.slice(1);
-            return (
-              <button
-                key={link.href}
-                onClick={() => scrollTo(link.href)}
-                className={`
-                  relative text-[14px] font-medium
-                  transition-colors duration-200
-                  ${isActive ? "text-white" : "text-white/65 hover:text-white"}
-                `}
-              >
-                {link.label}
-                {isActive && (
-                  <motion.span
-                    layoutId="nav-underline"
-                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-[#6C63FF] rounded-full"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Spacer — keeps CTA right */}
-        <div className="flex-1" />
-
-        {/* CTA — far right */}
-        <button
-          onClick={() => scrollTo("#contact")}
-          className="hidden md:block shrink-0 text-white text-[14px] font-[500]
-            bg-[#6C63FF] hover:bg-[#5a52e0]
-            transition-colors duration-200
-            active:scale-[0.97]"
+        <div 
+          className="w-full flex items-center justify-between h-full px-6 md:px-10 lg:px-20"
           style={{
-            padding:      "10px 22px",
-            borderRadius: "999px",
+            maxWidth: 1280,
+            margin: "0 auto",
           }}
         >
-          Get Started →
-        </button>
+          {/* Logo — far left */}
+          <button
+            onClick={() => scrollTo("#home")}
+            className="flex items-center select-none group shrink-0"
+            aria-label="Scroll to top"
+          >
+            <span
+              className="text-white transition-colors duration-300 group-hover:text-white/90"
+              style={{ fontSize: "18px", fontWeight: 800, letterSpacing: "0.15em" }}
+            >
+              AVALENCE
+            </span>
+            <span className="inline-block w-[6px] h-[6px] rounded-full bg-[#6C63FF] ml-[3px] mb-[1px] self-end
+              transition-shadow duration-300 group-hover:shadow-[0_0_10px_rgba(108,99,255,0.7)]" />
+          </button>
 
-        {/* Mobile Hamburger */}
-        <button
-          onClick={() => setMobileOpen((p) => !p)}
-          className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px]"
-          aria-label="Toggle mobile menu"
-          aria-expanded={mobileOpen}
-        >
-          <span className={`block w-5 h-[1.5px] bg-white rounded-full transition-all duration-300 origin-center
-            ${mobileOpen ? "rotate-45 translate-y-[3.25px]" : ""}`} />
-          <span className={`block w-5 h-[1.5px] bg-white rounded-full transition-all duration-300
-            ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
-          <span className={`block w-5 h-[1.5px] bg-white rounded-full transition-all duration-300 origin-center
-            ${mobileOpen ? "-rotate-45 -translate-y-[3.25px]" : ""}`} />
-        </button>
+          {/* Spacer — pushes links to center */}
+          <div className="flex-1" />
+
+          {/* Desktop Nav Links — centered */}
+          <div 
+            ref={navContainerRef}
+            onMouseLeave={handleMouseLeaveContainer}
+            className="hidden md:flex items-center gap-10 relative py-2"
+          >
+            {/* Sliding Underline Indicator */}
+            <div
+              ref={hoverUnderlineRef}
+              className="absolute bottom-0 h-[2px] bg-[#6C63FF] rounded-full opacity-0 pointer-events-none"
+              style={{ transition: "opacity 0.2s" }}
+            />
+
+            {NAV_LINKS.map((link) => {
+              const isActive = activeSection === link.href.slice(1);
+              return (
+                <button
+                  key={link.href}
+                  onClick={() => scrollTo(link.href)}
+                  onMouseEnter={(e) => updateUnderline(e.currentTarget)}
+                  className={`
+                    nav-btn nav-btn-${link.href.slice(1)}
+                    relative text-[14px] font-medium py-1
+                    transition-colors duration-200
+                    ${isActive ? "nav-btn-active text-white" : "text-white/65 hover:text-white"}
+                  `}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Spacer — keeps CTA right */}
+          <div className="flex-1" />
+
+          {/* CTA — far right */}
+          <MagneticButton>
+            <button
+              onClick={() => scrollTo("#contact")}
+              className="hidden md:block shrink-0 text-white text-[14px] font-[500]
+                bg-[#6C63FF] hover:bg-[#5a52e0]
+                transition-colors duration-200
+                active:scale-[0.97]"
+              style={{
+                padding:      "10px 22px",
+                borderRadius: "999px",
+              }}
+            >
+              Get Started →
+            </button>
+          </MagneticButton>
+
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMobileOpen((p) => !p)}
+            className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] ml-auto"
+            aria-label="Toggle mobile menu"
+            aria-expanded={mobileOpen}
+          >
+            <span className={`block w-5 h-[1.5px] bg-white rounded-full transition-all duration-300 origin-center
+              ${mobileOpen ? "rotate-45 translate-y-[3.25px]" : ""}`} />
+            <span className={`block w-5 h-[1.5px] bg-white rounded-full transition-all duration-300
+              ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
+            <span className={`block w-5 h-[1.5px] bg-white rounded-full transition-all duration-300 origin-center
+              ${mobileOpen ? "-rotate-45 -translate-y-[3.25px]" : ""}`} />
+          </button>
+        </div>
       </motion.nav>
 
       {/* ── Mobile Menu ── */}

@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Update this with the target WhatsApp phone number (include country code, e.g., "15550199")
+const WHATSAPP_NUMBER = "15550199";
+
 export default function ContactSection() {
   const [formData, setFormData] = useState({
     name: "",
@@ -18,7 +21,7 @@ export default function ContactSection() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -39,19 +42,25 @@ export default function ContactSection() {
     setStatus("loading");
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const formattedMessage = `Hello AVALENCE! I would like to build a project together.
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to submit message");
+*Name:* ${formData.name}
+*Email:* ${formData.email}
+*Company:* ${formData.company || "N/A"}
+*Budget:* ${formData.budget}
+
+*Project Details:*
+${formData.brief}`;
+
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(formattedMessage)}`;
+      
+      // Open WhatsApp in a new tab/app
+      window.open(whatsappUrl, "_blank");
 
       setStatus("success");
     } catch (err: any) {
       setStatus("error");
-      setErrorMessage(err.message || "An unexpected error occurred. Please try again.");
+      setErrorMessage("Failed to initiate WhatsApp chat. Please try again.");
     }
   };
 
@@ -62,30 +71,31 @@ export default function ContactSection() {
   `;
 
   return (
-    <section id="contact" className="py-24 md:py-32 bg-black border-t border-white/[0.05] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+    <section 
+      id="contact" 
+      className="section-wrapper"
+    >
+      <div className="content-container">
         
-        {/* ── Heading ── */}
-        <div className="text-center mb-16 md:mb-24">
-          <h2 className="text-4xl md:text-5xl lg:text-[56px] font-bold text-white tracking-tight mb-5">
-            Let's Build the <span className="text-[#6C63FF]">Future</span> Together
+        {/* ── CINEMATIC ISOLATED HEADING ── */}
+        <div className="text-center max-w-6xl mx-auto mb-16 md:mb-20">
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-[0.95]">
+            Let's Build the <span className="text-[#8B7FFF]">Future</span> Together
           </h2>
-          <p className="text-text-muted text-lg md:text-xl max-w-2xl mx-auto">
-            Whether you're looking to integrate AI into your workflow or redesign your core product, our team is ready to help you scale.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        {/* ── FORM GRID ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center mt-16 md:mt-20">
           
-          {/* ── Left Side: Decorative Visual ── */}
-          <div className="hidden lg:flex justify-center items-center relative w-full h-[500px] pointer-events-none">
+          {/* Left Side: Decorative Visual Sphere */}
+          <div className="contact-left hidden lg:flex justify-center items-center relative w-full h-[500px] pointer-events-none">
             {/* Soft Glows */}
             <div className="absolute w-[450px] h-[450px] rounded-full bg-[#6C63FF]/15 blur-[120px] animate-pulse" />
             <div 
               className="absolute w-[350px] h-[350px] rounded-full bg-[#4A3FBF]/20 blur-[100px] animate-pulse" 
               style={{ animationDelay: "1s" }} 
             />
-            {/* Abstract Wireframe Sphere / Particle lines mapping */}
+            {/* Abstract Wireframe Sphere */}
             <svg className="relative z-10 w-[400px] h-[400px] opacity-40 animate-[spin_60s_linear_infinite]" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
               {Array.from({ length: 12 }).map((_, i) => (
                 <ellipse 
@@ -103,25 +113,46 @@ export default function ContactSection() {
             </svg>
           </div>
 
-          {/* ── Right Side: Form ── */}
-          <div className="w-full max-w-xl mx-auto lg:mx-0 relative">
+          {/* Right Side: Form */}
+          <div className="w-full relative">
             <AnimatePresence mode="wait">
               {status === "success" ? (
                 <motion.div
                   key="success"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white/[0.03] border border-[#6C63FF]/30 rounded-2xl p-10 text-center shadow-[0_0_40px_rgba(108,99,255,0.1)]"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-white/[0.02] border border-[#6C63FF]/30 rounded-3xl p-10 md:p-12 shadow-[0_0_50px_rgba(108,99,255,0.15)] flex flex-col items-center justify-center text-center w-full min-h-[500px]"
                 >
-                  <div className="w-16 h-16 bg-[#6C63FF]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-8 h-8 text-[#6C63FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  {/* Premium Glowing Checkmark Icon */}
+                  <div className="relative w-20 h-20 bg-[#6C63FF]/15 border border-[#8B7FFF]/40 rounded-full flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(108,99,255,0.3)]">
+                    <svg className="w-10 h-10 text-[#8B7FFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Message Sent!</h3>
-                  <p className="text-text-muted">
-                    Thank you for reaching out. Our team will review your project brief and get back to you within 24 hours.
+
+                  <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight">WhatsApp Redirected!</h3>
+                  <p className="text-text-muted mb-10 max-w-sm text-base md:text-lg leading-relaxed">
+                    We've opened a direct WhatsApp chat window. Please send the pre-filled text in WhatsApp to submit your request instantly.
                   </p>
+                  
+                  <button
+                    onClick={() => {
+                      const formattedMessage = `Hello AVALENCE! I would like to build a project together.
+
+*Name:* ${formData.name}
+*Email:* ${formData.email}
+*Company:* ${formData.company || "N/A"}
+*Budget:* ${formData.budget}
+
+*Project Details:*
+${formData.brief}`;
+                      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(formattedMessage)}`, "_blank");
+                    }}
+                    style={{ backgroundColor: "#6C63FF" }}
+                    className="w-full max-w-[320px] py-4 mt-6 md:mt-8 rounded-full text-white text-sm font-semibold hover:shadow-[0_0_32px_rgba(108,99,255,0.6)] hover:bg-[#5a52e0] transition-all duration-300 active:scale-[0.97]"
+                  >
+                    Re-open WhatsApp Chat
+                  </button>
                 </motion.div>
               ) : (
                 <motion.form
@@ -130,7 +161,7 @@ export default function ContactSection() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, y: -20 }}
                   onSubmit={handleSubmit}
-                  className="space-y-6"
+                  className="contact-form space-y-6"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Name */}
@@ -141,7 +172,7 @@ export default function ContactSection() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="John Doe"
+                        placeholder="Aarav Sharma"
                         className={inputStyles}
                         required
                         disabled={status === "loading"}
@@ -155,7 +186,7 @@ export default function ContactSection() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="john@example.com"
+                        placeholder="aarav@example.com"
                         className={inputStyles}
                         required
                         disabled={status === "loading"}
@@ -247,10 +278,10 @@ export default function ContactSection() {
               )}
             </AnimatePresence>
 
-            {/* ── Contact Info Footer ── */}
+            {/* Contact Info Footer */}
             <div className="mt-10 flex flex-col sm:flex-row items-center sm:justify-center lg:justify-start gap-4 sm:gap-6 text-sm text-white/50 pt-8 border-t border-white/[0.05]">
-              <a href="mailto:atom@avalene.ai" className="hover:text-white transition-colors">
-                atom@avalene.ai
+              <a href="mailto:atom@avalence.ai" className="hover:text-white transition-colors">
+                atom@avalence.ai
               </a>
               <span className="hidden sm:inline">•</span>
               <a href="#" className="hover:text-white transition-colors flex items-center gap-2">

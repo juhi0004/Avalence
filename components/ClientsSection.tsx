@@ -19,43 +19,20 @@ export default function ClientsSection() {
     ).matches;
 
     const ctx = gsap.context(() => {
+      // ── Entrance Reveal value using GSAP ScrollTrigger ──
       const revealObj = { value: 0 };
+      gsap.to(revealObj, {
+        value: 1,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+        },
+      });
 
-      if (!reducedMotion) {
-        /* ── Arc Reveal Animation ── */
-        gsap.fromTo(
-          wrapperRef.current,
-          { clipPath: "inset(0 50% 0 50%)" },
-          {
-            clipPath: "inset(0 0% 0 0%)",
-            duration: 1.8,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 75%",
-            },
-          }
-        );
-
-        /* ── Value used for logo opacity fade-in ── */
-        gsap.to(revealObj, {
-          value: 1,
-          duration: 1.5,
-          ease: "power2.inOut",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 75%",
-          },
-        });
-      } else {
-        revealObj.value = 1;
-        if (wrapperRef.current) {
-          wrapperRef.current.style.clipPath = "inset(0 0% 0 0%)";
-        }
-      }
-
-      /* ── Continuous Arc Motion Ticker ── */
-      const duration = 60; // Total loop time in seconds (very slow)
+      // ── Continuous Arc Motion Ticker ──
+      const duration = 60; // Total loop time in seconds
 
       const updateMotion = () => {
         const time = gsap.ticker.time;
@@ -64,9 +41,12 @@ export default function ClientsSection() {
         itemsRef.current.forEach((el, i) => {
           if (!el) return;
           
+          const logoName = LOGOS[i];
+          const isCenterPeak = logoName === "e2open" || logoName === "Toyota";
+          const isEdgeItem = logoName === "Cognizant" || logoName === "Lowe's";
+
           // Spread logos evenly along the 0-1 path
           const t = (progress + i / LOGOS.length) % 1;
-
           const x = t * 100; // Percentage of width
           
           // Quadratic Bezier mapping: M 0,200 Q 500,-120 1000,200
@@ -77,11 +57,17 @@ export default function ClientsSection() {
             Math.pow(t, 2) * 200;
 
           // Scale peaks at t=0.5 (center of arc)
-          const scale = 0.6 + 0.4 * Math.sin(t * Math.PI);
+          // Dynamically adjust scale & opacity based on active position on the arc
+          const peakFactor = Math.sin(t * Math.PI); // 0 at edges, 1 at peak
+          const scale = (isCenterPeak ? 0.95 : 0.75) + 0.2 * peakFactor;
 
-          // Opacity fades out at edges, multiplied by entrance reveal value
-          const baseOpacity = Math.sin(t * Math.PI);
-          const opacity = baseOpacity * 0.9 * revealObj.value;
+          // Compute dynamic opacity relative to peak factor
+          let baseOpacity = 0.6 + 0.3 * peakFactor;
+          if (isEdgeItem) {
+            baseOpacity = 0.6 * baseOpacity; // Edge items are more faded
+          }
+
+          const opacity = baseOpacity * revealObj.value;
 
           el.style.left = `${x}%`;
           el.style.top = `${y}px`;
@@ -91,8 +77,6 @@ export default function ClientsSection() {
       };
 
       gsap.ticker.add(updateMotion);
-
-      // Force initial render to prevent flash of unstyled text
       updateMotion();
 
       return () => gsap.ticker.remove(updateMotion);
@@ -105,65 +89,119 @@ export default function ClientsSection() {
     <section
       id="clients"
       ref={sectionRef}
-      className="relative w-full bg-black py-24 md:py-32 overflow-hidden"
+      className="section-wrapper"
     >
-      <div className="max-w-4xl mx-auto text-center px-6 mb-16 md:mb-24">
-        <h2 className="text-3xl md:text-[40px] font-bold text-white mb-4 tracking-tight">
-          Trusted by Industry Leaders
-        </h2>
-        <p className="text-base md:text-lg text-text-muted">
-          Powering Innovation for Companies Worldwide
-        </p>
-      </div>
-
-      {/* ── Arc and Logos Container ── */}
-      <div className="relative w-full h-[250px] max-w-7xl mx-auto">
-        <div ref={wrapperRef} className="absolute inset-0 w-full h-full">
-          {/* SVG Arc Line */}
-          <svg
-            viewBox="0 0 1000 200"
-            preserveAspectRatio="none"
-            className="absolute top-0 left-0 w-full h-[200px]"
+      <div className="content-container">
+        {/* Header Block */}
+        <div className="text-center w-full" style={{ marginBottom: "80px" }}>
+          <h2 
+            className="font-bold text-white tracking-tight"
+            style={{
+              fontSize: "clamp(28px, 3.5vw, 42px)",
+              marginBottom: "12px",
+              letterSpacing: "-0.01em",
+              lineHeight: 1.2
+            }}
           >
-            <defs>
-              <linearGradient id="arcLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="transparent" />
-                <stop offset="25%" stopColor="#6C63FF" stopOpacity="0.3" />
-                <stop offset="50%" stopColor="#6C63FF" stopOpacity="0.8" />
-                <stop offset="75%" stopColor="#6C63FF" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="transparent" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M 0,200 Q 500,-120 1000,200"
-              fill="none"
-              stroke="url(#arcLine)"
-              strokeWidth="1.5"
-            />
-            {/* Soft glow behind the path */}
-            <path
-              d="M 0,200 Q 500,-120 1000,200"
-              fill="none"
-              stroke="url(#arcLine)"
-              strokeWidth="12"
-              style={{ filter: "blur(6px)", opacity: 0.4 }}
-            />
-          </svg>
+            Trusted by Industry Leaders
+          </h2>
+          <p 
+            style={{
+              fontSize: "15px",
+              color: "rgba(255,255,255,0.4)",
+              fontWeight: 400,
+              letterSpacing: "0.02em",
+              marginTop: "12px"
+            }}
+          >
+            Powering Innovation for Companies Worldwide
+          </p>
         </div>
 
-        {/* ── Rotating Logos ── */}
-        {LOGOS.map((logo, index) => (
-          <div
-            key={logo}
-            ref={(el) => {
-              if (el) itemsRef.current[index] = el;
-            }}
-            className="absolute top-0 left-0 text-white font-bold tracking-wide whitespace-nowrap will-change-transform"
-            style={{ fontSize: "clamp(24px, 4vw, 42px)", opacity: 0 }}
-          >
-            {logo}
+        {/* Arc/Logos Area */}
+        <div 
+          className="relative w-full overflow-hidden"
+          style={{
+            marginTop: "60px",
+            minHeight: "280px"
+          }}
+        >
+          <div ref={wrapperRef} className="absolute inset-0 w-full h-full">
+            {/* SVG Arc Line */}
+            <svg
+              viewBox="0 0 1000 200"
+              preserveAspectRatio="none"
+              className="absolute top-0 left-0 w-full h-[200px]"
+            >
+              <defs>
+                {/* Linear Gradient for Stroke */}
+                <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="transparent" />
+                  <stop offset="25%" stopColor="#6C63FF" />
+                  <stop offset="50%" stopColor="#8B7FFF" />
+                  <stop offset="75%" stopColor="#6C63FF" />
+                  <stop offset="100%" stopColor="transparent" />
+                </linearGradient>
+                
+                {/* SVG Gaussian Blur Glow Filter */}
+                <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* SVG Arc Path with Stroke Glow */}
+              <path
+                className="clients-arc-path"
+                d="M 0,200 Q 500,-120 1000,200"
+                fill="none"
+                stroke="url(#arcGradient)"
+                strokeWidth="1"
+                style={{
+                  opacity: 0.5,
+                  filter: "url(#glowFilter)"
+                }}
+              />
+            </svg>
           </div>
-        ))}
+
+          {/* Rotating Logos */}
+          {LOGOS.map((logo, index) => {
+            const isCenterPeak = logo === "e2open" || logo === "Toyota";
+            const isEdgeItem = logo === "Cognizant" || logo === "Lowe's";
+
+            return (
+              <div
+                key={logo}
+                ref={(el) => {
+                  if (el) itemsRef.current[index] = el;
+                }}
+                className="clients-logo absolute top-0 left-0 text-white font-bold tracking-wide whitespace-nowrap will-change-transform cursor-default"
+                style={{
+                  fontSize: isCenterPeak
+                    ? "calc(clamp(16px, 2vw, 22px) + 4px)"
+                    : isEdgeItem
+                    ? "clamp(14px, 1.8vw, 18px)"
+                    : "clamp(16px, 2vw, 22px)",
+                  fontWeight: 700,
+                  color: "rgba(255, 255, 255, 0.85)",
+                  transition: "color 200ms ease, opacity 200ms ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "#ffffff";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.85)";
+                }}
+              >
+                {logo}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

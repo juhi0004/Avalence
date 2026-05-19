@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import gsap from "gsap";
 
 export default function Footer() {
   const [time, setTime] = useState("");
@@ -25,6 +26,19 @@ export default function Footer() {
     return () => clearInterval(interval);
   }, []);
 
+  // Flicker animation every 10 seconds (old terminal style)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const el = document.querySelector(".live-clock");
+      if (el) {
+        gsap.timeline()
+          .to(el, { opacity: 0.7, duration: 0.05 })
+          .to(el, { opacity: 1, duration: 0.05 });
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   const footerLinks = [
     {
       title: "Services",
@@ -39,9 +53,9 @@ export default function Footer() {
     {
       title: "Platform",
       links: [
-        { name: "Avalene Core", href: "#" },
-        { name: "Avalene Agentic", href: "#" },
-        { name: "Avalene IntentIQ", href: "#" },
+        { name: "Avalence Core", href: "#" },
+        { name: "Avalence Agentic", href: "#" },
+        { name: "Avalence IntentIQ", href: "#" },
       ],
     },
     {
@@ -55,7 +69,7 @@ export default function Footer() {
     {
       title: "Resources",
       links: [
-        { name: "Open Avalene", href: "#" },
+        { name: "Open Avalence", href: "#" },
         { name: "Clinix AI Platform", href: "#" },
         { name: "Contact", href: "#contact" },
       ],
@@ -63,7 +77,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative w-full bg-black border-t border-white/[0.05] overflow-hidden pt-24 pb-8">
+    <footer className="relative w-full bg-black border-t border-white/[0.05] overflow-hidden px-6 md:px-20 pt-20 pb-10">
       {/* ── Background Glow ── */}
       <div 
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[80%] h-[500px] pointer-events-none"
@@ -72,17 +86,17 @@ export default function Footer() {
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 w-full" style={{ maxWidth: 1280, margin: "0 auto" }}>
         <div className="flex flex-col lg:flex-row justify-between gap-16 mb-24">
           
           {/* ── Left Column ── */}
           <div className="flex flex-col justify-between max-w-md w-full">
             <div>
               <a 
-                href="mailto:atom@avalene.ai" 
+                href="mailto:atom@avalence.ai" 
                 className="text-2xl md:text-3xl font-medium text-white hover:text-[#6C63FF] transition-colors inline-flex items-center gap-2 mb-6"
               >
-                atom@avalene.ai
+                atom@avalence.ai
               </a>
               <div className="flex flex-col gap-3 text-text-muted">
                 <a href="#" className="hover:text-white transition-colors inline-flex items-center gap-1 w-fit">
@@ -97,7 +111,7 @@ export default function Footer() {
 
             {/* Live Clock */}
             <div className="mt-20 lg:mt-32">
-              <span className="font-mono text-[48px] md:text-[56px] font-[800] text-white tracking-tighter tabular-nums">
+              <span className="live-clock font-mono text-[48px] md:text-[56px] font-[800] text-white tracking-tighter tabular-nums">
                 {time || "00:00:00"}
               </span>
               <p className="text-text-muted text-xs tracking-widest mt-2 uppercase">Local Time</p>
@@ -128,7 +142,7 @@ export default function Footer() {
 
         {/* ── Bottom Bar ── */}
         <div className="flex flex-col justify-start pt-8 border-t border-white/[0.05] text-sm text-white/40">
-          <p>Avalene AI, © 2026. All rights reserved.</p>
+          <p>Avalence AI, © 2026. All rights reserved.</p>
         </div>
       </div>
     </footer>

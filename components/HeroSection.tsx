@@ -5,6 +5,9 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import FlipCounter from "@/components/ui/FlipCounter";
+import WaveTerrain from "@/components/three/WaveTerrain";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -185,15 +188,25 @@ export default function HeroSection() {
     <section
       id="home"
       ref={sectionRef}
-      className="relative w-full bg-black overflow-x-hidden flex flex-col items-center justify-between"
-      style={{ minHeight: "max(100vh, 900px)", paddingTop: "72px" }}
+      className="relative w-full bg-black overflow-x-hidden flex flex-col items-center justify-between px-6 md:px-20"
+      style={{ minHeight: "max(100vh, 900px)", paddingTop: "72px", boxSizing: "border-box" }}
     >
+      {/* ── Dot Grid Background ── */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 40%, transparent 100%)"
+        }}
+      />
       {/* ── AVALENCE Watermark ── */}
       <div
         ref={watermarkRef}
         aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-        style={{ opacity: 0, zIndex: 20 }}
+        className="hero-watermark absolute flex items-center justify-center pointer-events-none select-none"
+        style={{ opacity: 0, zIndex: 20, left: "50%", transform: "translateX(-50%)" }}
       >
         <span
           className="font-black text-white whitespace-nowrap"
@@ -211,8 +224,8 @@ export default function HeroSection() {
       <div
         ref={canvasWrapRef}
         onClick={handleBurst}
-        className="relative w-full cursor-pointer z-10 flex-shrink-0"
-        style={{ height: "50vh", opacity: 0 }}
+        className="brain-canvas-wrap relative w-full cursor-pointer z-10 flex-shrink-0"
+        style={{ height: "50vh", opacity: 0, maxWidth: "680px", margin: "0 auto" }}
       >
         <BrainScene burstTrigger={burstTrigger} />
       </div>
@@ -257,100 +270,103 @@ export default function HeroSection() {
         )}
       </AnimatePresence>
 
-      {/* ── Text Content ── */}
-      <div className="relative z-10 text-center px-6 flex flex-col items-center">
-        <h1
-          ref={headlineRef}
-          className="font-bold tracking-tight text-white"
-          style={{
-            fontSize:   "clamp(36px, 5vw, 64px)",
-            lineHeight: 1.15,
-            maxWidth:   "800px",
-            opacity:    0,
-          }}
-        >
-          Building Intelligent Solutions{" "}
-          <span
+      {/* ── Inner content wrapper ── */}
+      <div className="w-full flex flex-col items-center justify-between flex-grow" style={{ maxWidth: 1280, margin: "0 auto" }}>
+        {/* ── Text Content ── */}
+        <div className="relative z-10 text-center w-full flex flex-col items-center px-4">
+          <h1
+            ref={headlineRef}
+            className="hero-headline font-bold tracking-tight text-white"
             style={{
-              background:             "linear-gradient(135deg, #6C63FF, #4A3FBF)",
-              WebkitBackgroundClip:   "text",
-              WebkitTextFillColor:    "transparent",
-              backgroundClip:         "text",
+              fontSize:   "clamp(36px, 5vw, 64px)",
+              lineHeight: 1.15,
+              maxWidth:   "800px",
+              opacity:    0,
             }}
           >
-            That Matter
-          </span>
-        </h1>
-
-        <p
-          ref={subRef}
-          style={{
-            fontSize:   "17px",
-            color:      "rgba(255,255,255,0.55)",
-            maxWidth:   "560px",
-            margin:     "16px auto 0",
-            lineHeight: 1.7,
-            opacity:    0,
-          }}
-        >
-          We empower organizations with AI that turns complex challenges into
-          real-world outcomes.
-        </p>
-
-        <button
-          ref={ctaRef}
-          onClick={scrollToContact}
-          className="
-            inline-flex items-center gap-2 mt-8
-            px-7 py-3 rounded-full
-            bg-[#6C63FF] text-white text-sm font-semibold
-            transition-all duration-300
-            hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
-            hover:bg-[#5a52e0]
-            active:scale-[0.97]
-          "
-          style={{ opacity: 0 }}
-        >
-          Start Your Project
-          <span className="text-base">→</span>
-        </button>
-      </div>
-
-      {/* ── Stats Row ── */}
-      <div
-        ref={statsRef}
-        className="relative z-10 w-full flex flex-wrap justify-center items-center
-          border-t border-white/[0.06]"
-        style={{ gap: "0", paddingBottom: "0" }}
-      >
-        {STATS.map((stat, i) => (
-          <div
-            key={stat.label}
-            className="flex flex-col items-center justify-center py-6 px-8 sm:px-12"
-            style={{
-              opacity:     0,
-              textAlign:   "center",
-              borderRight: i < STATS.length - 1 ? "1px solid rgba(255,255,255,0.1)" : "none",
-            }}
-          >
-            <span
-              className="text-white"
-              style={{ fontSize: "36px", fontWeight: 800, lineHeight: 1 }}
-            >
-              {stat.value}
-            </span>
+            Building Intelligent Solutions{" "}
             <span
               style={{
-                fontSize:   "13px",
-                color:      "rgba(255,255,255,0.5)",
-                marginTop:  "4px",
-                whiteSpace: "nowrap",
+                background:             "linear-gradient(135deg, #6C63FF, #4A3FBF)",
+                WebkitBackgroundClip:   "text",
+                WebkitTextFillColor:    "transparent",
+                backgroundClip:         "text",
               }}
             >
-              {stat.label}
+              That Matter
             </span>
-          </div>
-        ))}
+          </h1>
+
+          <p
+            ref={subRef}
+            style={{
+              fontSize:   "17px",
+              color:      "rgba(255,255,255,0.55)",
+              maxWidth:   "560px",
+              margin:     "16px auto 0",
+              lineHeight: 1.7,
+              opacity:    0,
+            }}
+          >
+            We empower organizations with AI that turns complex challenges into
+            real-world outcomes.
+          </p>
+
+          <MagneticButton>
+            <button
+              ref={ctaRef}
+              onClick={scrollToContact}
+              className="
+                inline-flex items-center gap-2 mt-8
+                px-7 py-3 rounded-full
+                bg-[#6C63FF] text-white text-sm font-semibold
+                transition-all duration-300
+                hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
+                hover:bg-[#5a52e0]
+                active:scale-[0.97]
+              "
+              style={{ opacity: 0 }}
+            >
+              Start Your Project
+              <span className="text-base">→</span>
+            </button>
+          </MagneticButton>
+        </div>
+
+        {/* ── Stats Row ── */}
+        <div
+          ref={statsRef}
+          className="hero-stats relative z-10 w-full flex flex-wrap justify-center items-center border-t border-white/[0.06]"
+          style={{ gap: "0", paddingBottom: "0" }}
+        >
+          {STATS.map((stat, i) => (
+            <div
+              key={stat.label}
+              className="relative flex flex-col items-center justify-center py-4 px-[28px] sm:px-[48px]"
+              style={{
+                opacity:     0,
+                textAlign:   "center",
+              }}
+            >
+              <FlipCounter value={stat.value} label={stat.label} />
+              
+              {i < STATS.length - 1 && (
+                <div
+                  className="hidden sm:block"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    height: "40px",
+                    width: "1px",
+                    background: "rgba(255,255,255,0.12)",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ── CSS for hint pulse ── */}
@@ -360,6 +376,9 @@ export default function HeroSection() {
           50%       { opacity: 0.6; }
         }
       `}} />
+
+      {/* ── Wave Terrain ── */}
+      <WaveTerrain />
     </section>
   );
 }

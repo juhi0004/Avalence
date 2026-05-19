@@ -10,16 +10,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Avalene — Intelligence at Scale",
+  title: "Avalence — Intelligence at Scale",
   description:
-    "Avalene empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
+    "Avalence empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
   openGraph: {
-    title: "Avalene — Intelligence at Scale",
+    title: "Avalence — Intelligence at Scale",
     description:
-      "Avalene empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
+      "Avalence empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
     type: "website",
     locale: "en_US",
-    siteName: "Avalene",
+    siteName: "Avalence",
   },
 };
 
@@ -32,7 +32,6 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} antialiased`} style={{ scrollBehavior: 'smooth' }}>
       <body className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
         <LenisProvider>
-          <Navbar />
           <main>{children}</main>
         </LenisProvider>
       </body>

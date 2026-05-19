@@ -31,24 +31,24 @@ export default function BlogGrid({ posts }: { posts: any[] }) {
 
   return (
     <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.2 }}
       className="grid grid-cols-1 md:grid-cols-3 gap-8"
     >
-      {posts.map((post) => (
+      {posts.map((post, index) => (
         <motion.div
           key={post.slug}
-          variants={cardVariants}
           whileHover={{
             y: -4,
             boxShadow: "0 8px 40px rgba(108,99,255,0.15)",
           }}
-          className="group flex flex-col bg-white/[0.04] border border-white/[0.08] rounded-2xl overflow-hidden cursor-pointer"
+          className="blog-card group flex flex-col bg-white/[0.04] border border-white/[0.08] rounded-2xl overflow-hidden cursor-pointer"
         >
           {/* Top Image */}
           <div className="relative w-full aspect-video overflow-hidden">
+            {index === 0 && (
+              <span className="absolute top-3 left-3 z-10 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#6C63FF] rounded-full shadow-[0_0_8px_rgba(108,99,255,0.5)]">
+                Featured
+              </span>
+            )}
             {post.mainImage ? (
               <Image
                 src={urlFor(post.mainImage).url()}

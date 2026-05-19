@@ -137,3 +137,63 @@ button {
   color: #ffffff;
 }
 
+/* Ensure no two sections ever touch with zero gap */
+section + section {
+  margin-top: 0;
+}
+
+/* Global section padding — prevents any content touching screen edges */
+.section-wrapper {
+  position: relative;
+  width: 100%;
+  padding-left: 80px;
+  padding-right: 80px;
+  padding-top: 120px;
+  padding-bottom: 120px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1280px) {
+  .section-wrapper {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .section-wrapper {
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-wrapper {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-wrapper {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Global container for inner content max width */
+.content-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.section-wrapper + .section-wrapper {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+

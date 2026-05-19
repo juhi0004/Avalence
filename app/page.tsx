@@ -5,17 +5,29 @@ import CTASection from "@/components/CTASection";
 import BlogSection from "@/components/BlogSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import ParallaxController from "@/components/ParallaxController";
+import FloatingOrbs from "@/components/ui/FloatingOrbs";
+import ScrollProgress from "@/components/ui/ScrollProgress";
+import CursorGlow from "@/components/ui/CursorGlow";
 
 export default function Home() {
   return (
-    <>
+    <main style={{ position: "relative", overflowX: "hidden", perspective: "1200px", perspectiveOrigin: "50% 0%" }}>
+      <FloatingOrbs />
+      <ScrollProgress />
+      <CursorGlow />
+      <ParallaxController />
+      <Navbar />
+
       <HeroSection />
-      <ClientsSection />
       <ServicesSection />
+      <ClientsSection />
       <CTASection />
       <BlogSection />
       <ContactSection />
+
       <Footer />
-    </>
+    </main>
   );
 }
