@@ -10,10 +10,12 @@ import ParallaxController from "@/components/ParallaxController";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import CursorGlow from "@/components/ui/CursorGlow";
+import ParticleTunnel from "@/components/three/ParticleTunnel";
 
 export default function Home() {
   return (
     <main style={{ position: "relative", overflowX: "hidden", perspective: "1200px", perspectiveOrigin: "50% 0%" }}>
+      <ParticleTunnel />
       <FloatingOrbs />
       <ScrollProgress />
       <CursorGlow />
