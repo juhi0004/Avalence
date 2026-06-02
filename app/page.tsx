@@ -9,7 +9,6 @@ import Navbar from "@/components/Navbar";
 import ParallaxController from "@/components/ParallaxController";
 import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import ScrollProgress from "@/components/ui/ScrollProgress";
-import CursorGlow from "@/components/ui/CursorGlow";
 import ParticleTunnel from "@/components/three/ParticleTunnel";
 
 export default function Home() {
@@ -18,7 +17,6 @@ export default function Home() {
       <ParticleTunnel />
       <FloatingOrbs />
       <ScrollProgress />
-      <CursorGlow />
       <ParallaxController />
       <Navbar />
 

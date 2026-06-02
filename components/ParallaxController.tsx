@@ -28,7 +28,7 @@ export default function ParallaxController() {
       });
 
       // Brain canvas
-      heroTl.to(".brain-canvas-wrap", { y: -80, scale: 0.8, opacity: 0 }, 0);
+      heroTl.to(".brain-canvas-wrap", { opacity: 0 }, 0);
       // Headline
       heroTl.to(".hero-headline", { y: -120, opacity: 0 }, 0);
       // Watermark
@@ -38,22 +38,8 @@ export default function ParallaxController() {
 
       // ==========================================
       // 3D Depth Layered Parallax Sections (Element 5)
+      // NOTE: #services parallax removed — now handled by ZoomTransitionController
       // ==========================================
-      gsap.fromTo(
-        "#services",
-        { z: -50, rotateX: 3, opacity: 0.7, transformStyle: "preserve-3d" },
-        {
-          z: 0,
-          rotateX: 0,
-          opacity: 1,
-          scrollTrigger: {
-            trigger: "#services",
-            start: "top 85%",
-            end: "top 30%",
-            scrub: 1.5,
-          },
-        }
-      );
 
       gsap.fromTo(
         "#clients",
@@ -89,33 +75,8 @@ export default function ParallaxController() {
 
       // ==========================================
       // BEAT 2 — Services section entrance
+      // NOTE: Removed — now handled by ZoomTransitionController + avalence:servicesReveal event
       // ==========================================
-      const servicesTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#services",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      });
-
-      servicesTl.fromTo(
-        ".services-title",
-        { x: -60, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
-        0
-      );
-      servicesTl.fromTo(
-        ".services-desc",
-        { x: 60, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
-        0
-      );
-      servicesTl.fromTo(
-        ".services-card",
-        { rotateY: 15, x: 80, opacity: 0 },
-        { rotateY: 0, x: 0, opacity: 1, duration: 0.8, stagger: 0.2, ease: "power3.out" },
-        0.2
-      );
 
       // ==========================================
       // BEAT 3 — Clients section

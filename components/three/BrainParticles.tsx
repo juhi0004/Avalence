@@ -1,12 +1,20 @@
 "use client";
 
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, forwardRef, useImperativeHandle, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import gsap from "gsap";
 
+export interface BrainParticlesHandle {
+  triggerBurst: () => void;
+  resetBrain: () => void;
+  setBrainScale: (scale: number) => void;
+  setQuality: (quality: "full" | "half") => void;
+  getPoints: () => THREE.Points | null;
+}
+
 interface BrainParticlesProps {
-  burstTrigger: number;
+  onBurst?: () => void;
 }
 
 const PARTICLE_COUNT = 15000;
@@ -112,7 +120,7 @@ function generateBrainPositions(): {
 
     // Burst targets (explode outwards from center)
     const dir = new THREE.Vector3(px, py, pz).normalize();
-    const force = 2 + Math.random() * 8;
+    const force = 20 + Math.random() * 80;
     burst[i * 3] = px + dir.x * force;
     burst[i * 3 + 1] = py + dir.y * force;
     burst[i * 3 + 2] = pz + dir.z * force;
@@ -136,70 +144,87 @@ function generateBrainPositions(): {
   return { originalPositions: origPos, burstTargets: burst, colors };
 }
 
-export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
-  const pointsRef = useRef<THREE.Points>(null);
-  const materialRef = useRef<THREE.PointsMaterial>(null);
-  const isBursting = useRef(false);
+const BrainParticles = forwardRef<BrainParticlesHandle, BrainParticlesProps>(
+  ({ onBurst }, ref) => {
+    const pointsRef = useRef<THREE.Points>(null);
+    const materialRef = useRef<THREE.PointsMaterial>(null);
+    const isBursting = useRef(false);
+    const currentQuality = useRef<"full" | "half">("full");
+    const scaleOverride = useRef<number | null>(null);
+    const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const burstTweenRef = useRef<gsap.core.Tween | null>(null);
+    const returnTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const { originalPositions, burstTargets, colors } = useMemo(
-    () => generateBrainPositions(),
-    []
-  );
+    const { originalPositions, burstTargets, colors } = useMemo(
+      () => generateBrainPositions(),
+      []
+    );
 
-  const geometry = useMemo(() => {
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(originalPositions), 3));
-    geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    return geo;
-  }, [originalPositions, colors]);
+    const geometry = useMemo(() => {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(originalPositions), 3));
+      geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+      return geo;
+    }, [originalPositions, colors]);
 
-  useFrame(({ clock }) => {
-    if (!pointsRef.current) return;
-    
-    if (!isBursting.current) {
-      const breathe = 1.0 + 0.03 * Math.sin(clock.elapsedTime * 0.6);
-      pointsRef.current.scale.setScalar(breathe);
-    }
-  });
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+        if (burstTweenRef.current) burstTweenRef.current.kill();
+        if (returnTweenRef.current) returnTweenRef.current.kill();
+      };
+    }, []);
 
-  // Burst Effect Interaction
-  useEffect(() => {
-    if (burstTrigger === 0 || !pointsRef.current || isBursting.current) return;
+    const triggerBurst = useCallback(() => {
+      if (!pointsRef.current || isBursting.current) return;
 
-    const reducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reducedMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (reducedMotion) return;
+      if (reducedMotion) return;
 
-    isBursting.current = true;
+      isBursting.current = true;
+      onBurst?.();
 
-    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
-    const arr = posAttr.array as Float32Array;
+      const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+      const arr = posAttr.array as Float32Array;
 
-    // Phase 1 - Explode
-    const proxy = { t: 0 };
-    gsap.to(proxy, {
-      t: 1,
-      duration: 1.2,
-      ease: "power2.out",
-      onUpdate: () => {
-        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-          arr[i] = originalPositions[i] + (burstTargets[i] - originalPositions[i]) * proxy.t;
-        }
-        posAttr.needsUpdate = true;
-      },
-    });
+      // Phase 1 - Explode
+      const proxy = { t: 0 };
+      burstTweenRef.current = gsap.to(proxy, {
+        t: 1,
+        duration: 1.2,
+        ease: "power2.out",
+        onUpdate: () => {
+          for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+            arr[i] = originalPositions[i] + (burstTargets[i] - originalPositions[i]) * proxy.t;
+          }
+          posAttr.needsUpdate = true;
+        },
+      });
 
-    if (materialRef.current) {
-      gsap.to(materialRef.current.color, { r: 1, g: 1, b: 1, duration: 1.0 });
-      gsap.to(materialRef.current, { opacity: 0.25, duration: 1.2 });
-    }
+      if (materialRef.current) {
+        gsap.to(materialRef.current.color, { r: 1, g: 1, b: 1, duration: 1.0 });
+        gsap.to(materialRef.current, { opacity: 0.25, duration: 1.2 });
+      }
+    }, [originalPositions, burstTargets, onBurst]);
 
-    // Phase 2 - Return
-    const timer = setTimeout(() => {
+    const resetBrain = useCallback(() => {
+      if (!pointsRef.current) return;
+
+      // Kill any ongoing burst animation
+      if (burstTweenRef.current) burstTweenRef.current.kill();
+      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+
+      const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+      const arr = posAttr.array as Float32Array;
+
+      // Calculate current interpolation state
+      // We need to figure out where particles currently are relative to original->burst
       const ret = { t: 1 };
-      gsap.to(ret, {
+      returnTweenRef.current = gsap.to(ret, {
         t: 0,
         duration: 2.0,
         ease: "elastic.out(1, 0.4)",
@@ -218,29 +243,64 @@ export default function BrainParticles({ burstTrigger }: BrainParticlesProps) {
         gsap.to(materialRef.current.color, { r: 1, g: 1, b: 1, duration: 1.5 });
         gsap.to(materialRef.current, { opacity: 0.95, duration: 1.5 });
       }
-    }, 1400);
+    }, [originalPositions, burstTargets]);
 
-    return () => clearTimeout(timer);
-  }, [burstTrigger, originalPositions, burstTargets]);
+    const setBrainScale = useCallback((scale: number) => {
+      scaleOverride.current = scale;
+      if (pointsRef.current) {
+        pointsRef.current.scale.setScalar(scale);
+      }
+    }, []);
 
-  return (
-    <>
-      <ambientLight color="#6C63FF" intensity={1.5} />
-      <pointLight position={[2, 2, 2]} color="#ffffff" intensity={0.8} />
-      <pointLight position={[-2, -1, -2]} color="#4A3FBF" intensity={0.5} />
+    const setQuality = useCallback((quality: "full" | "half") => {
+      currentQuality.current = quality;
+      if (!pointsRef.current) return;
+
+      const geo = pointsRef.current.geometry;
+      if (quality === "half") {
+        // Draw only half of particles
+        geo.setDrawRange(0, Math.floor(PARTICLE_COUNT / 2));
+      } else {
+        geo.setDrawRange(0, PARTICLE_COUNT);
+      }
+    }, []);
+
+    useImperativeHandle(ref, () => ({
+      triggerBurst,
+      resetBrain,
+      setBrainScale,
+      setQuality,
+      getPoints: () => pointsRef.current,
+    }), [triggerBurst, resetBrain, setBrainScale, setQuality]);
+
+    useFrame(({ clock }) => {
+      if (!pointsRef.current) return;
       
-      <points ref={pointsRef} geometry={geometry}>
-        <pointsMaterial
-          ref={materialRef}
-          size={0.01}
-          sizeAttenuation
-          transparent
-          opacity={0.95}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          vertexColors
-        />
-      </points>
-    </>
-  );
-}
+      if (!isBursting.current && scaleOverride.current === null) {
+        const breathe = 1.0 + 0.03 * Math.sin(clock.elapsedTime * 0.6);
+        pointsRef.current.scale.setScalar(breathe);
+      }
+    });
+
+    return (
+      <group>
+        <points ref={pointsRef} geometry={geometry}>
+          <pointsMaterial
+            ref={materialRef}
+            size={0.03}
+            sizeAttenuation
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            vertexColors
+          />
+        </points>
+      </group>
+    );
+  }
+);
+
+BrainParticles.displayName = "BrainParticles";
+
+export default BrainParticles;

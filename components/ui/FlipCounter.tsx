@@ -47,7 +47,7 @@ function DigitCard({ targetDigit, triggerFlip, delay }: DigitCardProps) {
       >
         {/* Front Face (Initial Digit: 0) */}
         <div
-          className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.08] text-white"
+          className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/10 border border-white/20 text-white shadow-lg"
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
@@ -68,7 +68,7 @@ function DigitCard({ targetDigit, triggerFlip, delay }: DigitCardProps) {
 
         {/* Back Face (Target Digit) */}
         <div
-          className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.08] text-white"
+          className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/10 border border-white/20 text-white shadow-lg"
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
@@ -151,8 +151,9 @@ export default function FlipCounter({ value, label }: FlipCounterProps) {
 
       <span
         style={{
-          fontSize: "13px",
-          color: "rgba(255,255,255,0.5)",
+          fontSize: "14px",
+          color: "rgba(255,255,255,0.9)",
+          fontWeight: 600,
           display: "block",
           marginTop: "8px",
           letterSpacing: "0.05em",

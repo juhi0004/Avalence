@@ -5,9 +5,9 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import FlipCounter from "@/components/ui/FlipCounter";
-import WaveTerrain from "@/components/three/WaveTerrain";
-import MagneticButton from "@/components/ui/MagneticButton";
+import { useLenis } from "lenis/react";
+
+// Forced recompile to clear Turbopack cache
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,12 +21,7 @@ const BrainScene = dynamic(() => import("./three/BrainScene"), {
   ),
 });
 
-/* ── Stats data ── */
-const STATS = [
-  { value: "50+",  label: "Projects Delivered"  },
-  { value: "100%", label: "Client Satisfaction"  },
-  { value: "24/7", label: "Support Available"    },
-] as const;
+
 
 export default function HeroSection() {
   const sectionRef    = useRef<HTMLElement>(null);
@@ -35,21 +30,39 @@ export default function HeroSection() {
   const headlineRef   = useRef<HTMLHeadingElement>(null);
   const subRef        = useRef<HTMLParagraphElement>(null);
   const ctaRef        = useRef<HTMLButtonElement>(null);
-  const statsRef      = useRef<HTMLDivElement>(null);
 
-  const [burstTrigger, setBurstTrigger] = useState(0);
   const [showGlow,     setShowGlow]     = useState(false);
   const [showHint,     setShowHint]     = useState(true);
   const [hintVisible,  setHintVisible]  = useState(false); // delayed show
+  const [transitionComplete, setTransitionComplete] = useState(false);
+  const isDark = true;
+  const lenis = useLenis();
 
-  /* ── Brain click handler ── */
+  /* ── Brain click & Auto-scroll handler ── */
   const handleBurst = () => {
-    setBurstTrigger((p) => p + 1);
+    if (transitionComplete) return;
     setShowGlow(true);
     setShowHint(false);
     setHintVisible(false);
     setTimeout(() => setShowGlow(false), 600);
+
+    if (lenis) {
+      lenis.scrollTo("#contact", { duration: 1.5, lock: false });
+    } else {
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    }
   };
+
+  // Single scroll auto-play
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY > 0 && window.scrollY < 50 && !transitionComplete) {
+        handleBurst();
+      }
+    };
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [lenis, transitionComplete]);
 
   /* ── GSAP master timeline ── */
   useEffect(() => {
@@ -64,11 +77,6 @@ export default function HeroSection() {
       if (headlineRef.current)   { headlineRef.current.style.opacity  = "1"; headlineRef.current.style.transform = "none"; }
       if (subRef.current)        subRef.current.style.opacity        = "1";
       if (ctaRef.current)        ctaRef.current.style.opacity        = "1";
-      if (statsRef.current) {
-        Array.from(statsRef.current.children).forEach((c) => {
-          (c as HTMLElement).style.opacity = "1";
-        });
-      }
       setHintVisible(true);
       return;
     }
@@ -143,16 +151,6 @@ export default function HeroSection() {
         1.9
       );
 
-      /* STEP 3e — Stats stagger */
-      if (statsRef.current) {
-        tl.fromTo(
-          statsRef.current.children,
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.6, stagger: 0.15 },
-          2.1
-        );
-      }
-
       /* ────────────────────────────────────────────────
          Scroll — watermark continues fading from 0.04 → 0
       ──────────────────────────────────────────────── */
@@ -180,16 +178,24 @@ export default function HeroSection() {
 
   /* ── Smooth scroll to contact ── */
   const scrollToContact = () => {
-    const el = document.getElementById("contact");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (lenis) {
+      lenis.scrollTo("#contact", { duration: 1.5, lock: false });
+    } else {
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
     <section
       id="home"
       ref={sectionRef}
-      className="relative w-full bg-black overflow-x-hidden flex flex-col items-center justify-between px-6 md:px-20"
-      style={{ minHeight: "max(100vh, 900px)", paddingTop: "72px", boxSizing: "border-box" }}
+      className="relative w-full overflow-x-hidden flex flex-col items-center justify-center px-6 md:px-20"
+      style={{
+        height: "100vh", // Force exactly 1 viewport height
+        paddingTop: "72px", // Account for navbar
+        boxSizing: "border-box",
+        pointerEvents: transitionComplete ? "none" : undefined,
+      }}
     >
       {/* ── Dot Grid Background ── */}
       <div
@@ -223,11 +229,15 @@ export default function HeroSection() {
       {/* ── 3D Brain Canvas ── */}
       <div
         ref={canvasWrapRef}
-        onClick={handleBurst}
-        className="brain-canvas-wrap relative w-full cursor-pointer z-10 flex-shrink-0"
-        style={{ height: "50vh", opacity: 0, maxWidth: "680px", margin: "0 auto" }}
+        className="brain-canvas-wrap relative w-full cursor-pointer z-10"
+        style={{ height: "45vh", opacity: 0, maxWidth: "600px", margin: "2vh auto 4vh", flexShrink: 1 }}
       >
-        <BrainScene burstTrigger={burstTrigger} />
+        <BrainScene
+          isDark={isDark}
+          onBurst={handleBurst}
+          onTransitionComplete={() => setTransitionComplete(true)}
+          onTransitionReverse={() => setTransitionComplete(false)}
+        />
       </div>
 
       {/* ── "Click to Awaken" Hint (16px below canvas) ── */}
@@ -264,14 +274,14 @@ export default function HeroSection() {
             className="fixed inset-0 z-20 pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle at 50% 40%, rgba(108,99,255,0.5) 0%, transparent 70%)",
+                "radial-gradient(circle at 50% 40%, rgba(108,99,255,0.8) 0%, transparent 70%)",
             }}
           />
         )}
       </AnimatePresence>
 
       {/* ── Inner content wrapper ── */}
-      <div className="w-full flex flex-col items-center justify-between flex-grow" style={{ maxWidth: 1280, margin: "0 auto" }}>
+      <div className="w-full flex flex-col items-center flex-grow" style={{ maxWidth: 1280, margin: "0 auto" }}>
         {/* ── Text Content ── */}
         <div className="relative z-10 text-center w-full flex flex-col items-center px-4">
           <h1
@@ -312,60 +322,34 @@ export default function HeroSection() {
             real-world outcomes.
           </p>
 
-          <MagneticButton>
-            <button
-              ref={ctaRef}
-              onClick={scrollToContact}
-              className="
-                inline-flex items-center gap-2 mt-8
-                px-7 py-3 rounded-full
-                bg-[#6C63FF] text-white text-sm font-semibold
-                transition-all duration-300
-                hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
-                hover:bg-[#5a52e0]
-                active:scale-[0.97]
-              "
-              style={{ opacity: 0 }}
-            >
-              Start Your Project
-              <span className="text-base">→</span>
-            </button>
-          </MagneticButton>
-        </div>
-
-        {/* ── Stats Row ── */}
-        <div
-          ref={statsRef}
-          className="hero-stats relative z-10 w-full flex flex-wrap justify-center items-center border-t border-white/[0.06]"
-          style={{ gap: "0", paddingBottom: "0" }}
-        >
-          {STATS.map((stat, i) => (
-            <div
-              key={stat.label}
-              className="relative flex flex-col items-center justify-center py-4 px-[28px] sm:px-[48px]"
-              style={{
-                opacity:     0,
-                textAlign:   "center",
-              }}
-            >
-              <FlipCounter value={stat.value} label={stat.label} />
-              
-              {i < STATS.length - 1 && (
-                <div
-                  className="hidden sm:block"
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    height: "40px",
-                    width: "1px",
-                    background: "rgba(255,255,255,0.12)",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }}
-                />
-              )}
-            </div>
-          ))}
+          <button
+            ref={ctaRef}
+            onClick={scrollToContact}
+            className="
+              group inline-flex items-center gap-3 mt-8
+              px-10 py-4 rounded-full
+              text-white text-[17px] font-semibold tracking-wide
+              transition-all duration-500 ease-out
+              active:scale-[0.96]
+            "
+            style={{ 
+              opacity: 0,
+              background: "linear-gradient(135deg, rgba(108, 99, 255, 0.9), rgba(74, 63, 191, 0.9))",
+              boxShadow: "0 8px 32px rgba(108, 99, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            <span>Start Your Project</span>
+            <span className="text-xl transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </button>
         </div>
       </div>
 
@@ -376,9 +360,6 @@ export default function HeroSection() {
           50%       { opacity: 0.6; }
         }
       `}} />
-
-      {/* ── Wave Terrain ── */}
-      <WaveTerrain />
     </section>
   );
 }

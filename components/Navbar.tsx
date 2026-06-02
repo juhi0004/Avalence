@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
-import MagneticButton from "@/components/ui/MagneticButton";
 
 const NAV_LINKS = [
   { label: "Home",     href: "#home"     },
@@ -107,7 +106,7 @@ export default function Navbar() {
           fixed top-0 left-0 w-full z-50
           transition-all duration-300
           ${scrolled
-            ? "bg-black/70 backdrop-blur-md border-b border-white/[0.06] shadow-[0_1px_30px_rgba(108,99,255,0.05)]"
+            ? "bg-white/[0.03] backdrop-blur-xl border-b border-white/[0.1] shadow-[0_1px_30px_rgba(108,99,255,0.05)]"
             : "bg-transparent border-b border-transparent"
           }
         `}
@@ -122,17 +121,18 @@ export default function Navbar() {
           {/* Logo — far left */}
           <button
             onClick={() => scrollTo("#home")}
-            className="flex items-center select-none group shrink-0"
+            className="flex flex-col items-start select-none group shrink-0"
             aria-label="Scroll to top"
           >
             <span
               className="text-white transition-colors duration-300 group-hover:text-white/90"
-              style={{ fontSize: "18px", fontWeight: 800, letterSpacing: "0.15em" }}
+              style={{ fontSize: "18px", fontWeight: 800, letterSpacing: "0.15em", lineHeight: 1 }}
             >
               AVALENCE
             </span>
-            <span className="inline-block w-[6px] h-[6px] rounded-full bg-[#6C63FF] ml-[3px] mb-[1px] self-end
-              transition-shadow duration-300 group-hover:shadow-[0_0_10px_rgba(108,99,255,0.7)]" />
+            <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", marginTop: "4px", letterSpacing: "0.05em", fontStyle: "italic" }}>
+              simple, scalable, seamlessly yours
+            </span>
           </button>
 
           {/* Spacer — pushes links to center */}
@@ -175,21 +175,20 @@ export default function Navbar() {
           <div className="flex-1" />
 
           {/* CTA — far right */}
-          <MagneticButton>
             <button
               onClick={() => scrollTo("#contact")}
               className="hidden md:block shrink-0 text-white text-[14px] font-[500]
-                bg-[#6C63FF] hover:bg-[#5a52e0]
-                transition-colors duration-200
-                active:scale-[0.97]"
+                backdrop-blur-md transition-all duration-200 active:scale-[0.97]
+                hover:shadow-[0_0_20px_rgba(108,99,255,0.4)]"
               style={{
-                padding:      "10px 22px",
+                background: "rgba(108, 99, 255, 0.25)",
+                border: "1px solid rgba(108, 99, 255, 0.4)",
+                padding: "10px 22px",
                 borderRadius: "999px",
               }}
             >
               Get Started →
             </button>
-          </MagneticButton>
 
           {/* Mobile Hamburger */}
           <button
@@ -247,9 +246,14 @@ export default function Navbar() {
             <button
               onClick={() => scrollTo("#contact")}
               className="mt-2 w-full text-center text-base font-semibold text-white
-                bg-[#6C63FF] hover:bg-[#5a52e0]
-                transition-colors duration-200 active:scale-[0.98]"
-              style={{ padding: "12px 22px", borderRadius: "999px" }}
+                backdrop-blur-md transition-all duration-200 active:scale-[0.98]
+                hover:shadow-[0_0_20px_rgba(108,99,255,0.4)]"
+              style={{
+                background: "rgba(108, 99, 255, 0.25)",
+                border: "1px solid rgba(108, 99, 255, 0.4)",
+                padding: "12px 22px",
+                borderRadius: "999px"
+              }}
             >
               Get Started →
             </button>

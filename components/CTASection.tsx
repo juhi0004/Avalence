@@ -3,7 +3,6 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import MagneticButton from "@/components/ui/MagneticButton";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,25 +65,28 @@ export default function CTASection() {
                 </span>
               </h2>
 
-              <MagneticButton>
-                <button
-                  onClick={scrollToContact}
-                  className="
-                    inline-flex items-center gap-2
-                    px-8 py-3.5 rounded-full
-                    bg-primary text-white text-sm font-semibold
-                    transition-all duration-300
-                    hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
-                    hover:brightness-110
-                    active:scale-[0.97]
-                  "
-                >
-                  Let's work together
-                  <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">
-                    →
-                  </span>
-                </button>
-              </MagneticButton>
+              <button
+                onClick={scrollToContact}
+                className="
+                  inline-flex items-center gap-2
+                  px-8 py-3.5 rounded-full
+                  backdrop-blur-md
+                  text-white text-sm font-semibold
+                  transition-all duration-300
+                  hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
+                  hover:brightness-110
+                  active:scale-[0.97]
+                "
+                style={{
+                  background: "rgba(108, 99, 255, 0.25)",
+                  border: "1px solid rgba(108, 99, 255, 0.4)",
+                }}
+              >
+                Let's work together
+                <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">
+                  →
+                </span>
+              </button>
             </div>
             
             {/* Optional right side column (currently empty for the gradient visual effect to show clearly) */}

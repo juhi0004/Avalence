@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useTheme } from "next-themes";
+import React, { useState, useRef, useEffect } from "react";
+import gsap from "gsap";
 
 const SERVICES = [
   {
@@ -28,9 +28,75 @@ const SERVICES = [
 ];
 
 export default function ServicesSection() {
-  const { theme } = useTheme();
-  const isDark = theme !== "light"; // Default to dark if undefined or 'system' prefers dark (assuming dark is default for Avalence)
+  const isDark = true;
   const [activeCardId, setActiveCardId] = useState<string>("01");
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  useEffect(() => {
+    // On mobile: always show services section normally
+    if (isMobile) {
+      setIsVisible(true);
+      return;
+    }
+
+    // Check if user already scrolled past hero on page load/refresh
+    const heroSection = document.getElementById("home");
+    if (heroSection) {
+      const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+      if (window.scrollY > heroBottom * 0.7) {
+        setIsVisible(true);
+      }
+    }
+
+    const handleReveal = () => {
+      setIsVisible(true);
+      if (!sectionRef.current) return;
+
+      // Animate section in
+      gsap.fromTo(
+        sectionRef.current,
+        { opacity: 0, y: 60 },
+        { opacity: 1, y: 0, duration: 1.0, ease: "power3.out" }
+      );
+
+      // Stagger cards
+      const cards = sectionRef.current.querySelectorAll(".services-card");
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 40, rotateX: 8 },
+        {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          duration: 0.85,
+          stagger: 0.15,
+          ease: "power2.out",
+          delay: 0.25,
+        }
+      );
+    };
+
+    const handleHide = () => {
+      if (!sectionRef.current) return;
+      gsap.to(sectionRef.current, {
+        opacity: 0,
+        y: 30,
+        duration: 0.5,
+        ease: "power2.in",
+        onComplete: () => setIsVisible(false),
+      });
+    };
+
+    window.addEventListener("avalence:servicesReveal", handleReveal);
+    window.addEventListener("avalence:servicesHide", handleHide);
+
+    return () => {
+      window.removeEventListener("avalence:servicesReveal", handleReveal);
+      window.removeEventListener("avalence:servicesHide", handleHide);
+    };
+  }, [isMobile]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
@@ -63,8 +129,15 @@ export default function ServicesSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="services"
-      style={{ background: isDark ? "#000000" : "#FFFFFF" }}
+      style={{
+        background: "rgba(0, 0, 0, 0.4)", // Translucent to show ParticleTunnel
+        backdropFilter: "blur(8px)",
+        opacity: isVisible ? 1 : 0, // hidden on desktop until transition
+        position: "relative",
+        zIndex: 10,
+      }}
       className="section-wrapper"
     >
       <div className="content-container">

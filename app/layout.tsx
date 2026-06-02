@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} antialiased`} style={{ scrollBehavior: 'smooth' }}>
-      <body className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
+      <body className="min-h-screen bg-black text-white font-sans overflow-x-clip">
         <LenisProvider>
           <main>{children}</main>
         </LenisProvider>
