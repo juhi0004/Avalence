@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
+import { useLenis } from "lenis/react";
 
 const NAV_LINKS = [
   { label: "Home",     href: "#home"     },
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [scrolled,       setScrolled]       = useState(false);
   const [mobileOpen,     setMobileOpen]     = useState(false);
   const [activeSection,  setActiveSection]  = useState("home");
+  const lenis = useLenis();
 
   const navContainerRef = useRef<HTMLDivElement>(null);
   const hoverUnderlineRef = useRef<HTMLDivElement>(null);
@@ -81,13 +83,17 @@ export default function Navbar() {
   /* ── Smooth scroll ── */
   const scrollTo = useCallback((href: string) => {
     setMobileOpen(false);
-    const id  = href.replace("#", "");
-    const el  = document.getElementById(id);
-    if (el) {
-      const y = el.getBoundingClientRect().top + window.pageYOffset - 72;
-      window.scrollTo({ top: y, behavior: "smooth" });
+    if (lenis) {
+      lenis.scrollTo(href, { duration: 1.5, lock: false });
+    } else {
+      const id  = href.replace("#", "");
+      const el  = document.getElementById(id);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.pageYOffset - 72;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
     }
-  }, []);
+  }, [lenis]);
 
   const mobileMenuVariants = {
     closed: { opacity: 0, y: -16, transition: { duration: 0.2, ease: "easeInOut" as const } },
@@ -177,14 +183,26 @@ export default function Navbar() {
           {/* CTA — far right */}
             <button
               onClick={() => scrollTo("#contact")}
-              className="hidden md:block shrink-0 text-white text-[14px] font-[500]
-                backdrop-blur-md transition-all duration-200 active:scale-[0.97]
-                hover:shadow-[0_0_20px_rgba(108,99,255,0.4)]"
+              className="hidden md:block shrink-0 text-white text-[14px] font-semibold
+                transition-all duration-500 ease-out active:scale-[0.97]"
               style={{
-                background: "rgba(108, 99, 255, 0.25)",
-                border: "1px solid rgba(108, 99, 255, 0.4)",
-                padding: "10px 22px",
+                background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                padding: "12px 28px",
                 borderRadius: "999px",
+                boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
               }}
             >
               Get Started →
@@ -246,13 +264,15 @@ export default function Navbar() {
             <button
               onClick={() => scrollTo("#contact")}
               className="mt-2 w-full text-center text-base font-semibold text-white
-                backdrop-blur-md transition-all duration-200 active:scale-[0.98]
-                hover:shadow-[0_0_20px_rgba(108,99,255,0.4)]"
+                transition-all duration-500 ease-out active:scale-[0.98]"
               style={{
-                background: "rgba(108, 99, 255, 0.25)",
-                border: "1px solid rgba(108, 99, 255, 0.4)",
-                padding: "12px 22px",
-                borderRadius: "999px"
+                background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                padding: "14px 28px",
+                borderRadius: "999px",
+                boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
               }}
             >
               Get Started →

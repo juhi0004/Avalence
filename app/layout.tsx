@@ -10,16 +10,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Avalence — Intelligence at Scale",
+  title: "AVALENCE — Intelligence at Scale",
   description:
-    "Avalence empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
+    "AVALENCE empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
   openGraph: {
-    title: "Avalence — Intelligence at Scale",
+    title: "AVALENCE — Intelligence at Scale",
     description:
-      "Avalence empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
+      "AVALENCE empowers organizations with cascading AI that turns complex challenges into real-world outcomes.",
     type: "website",
     locale: "en_US",
-    siteName: "Avalence",
+    siteName: "AVALENCE",
   },
 };
 

@@ -18,7 +18,7 @@ export default function CTASection() {
   };
 
   return (
-    <section ref={sectionRef} id="cta" className="section-wrapper">
+    <section ref={sectionRef} id="cta" className="section-wrapper" style={{ paddingTop: "60px", paddingBottom: "20px" }}>
       <div className="content-container">
         <div
           ref={cardRef}
@@ -68,22 +68,32 @@ export default function CTASection() {
               <button
                 onClick={scrollToContact}
                 className="
-                  inline-flex items-center gap-2
-                  px-8 py-3.5 rounded-full
-                  backdrop-blur-md
-                  text-white text-sm font-semibold
-                  transition-all duration-300
-                  hover:shadow-[0_0_32px_rgba(108,99,255,0.5)]
-                  hover:brightness-110
-                  active:scale-[0.97]
+                  group inline-flex items-center gap-3
+                  px-10 py-4 rounded-full
+                  text-white text-[16px] font-semibold tracking-wide
+                  transition-all duration-500 ease-out
+                  active:scale-[0.96]
                 "
                 style={{
-                  background: "rgba(108, 99, 255, 0.25)",
-                  border: "1px solid rgba(108, 99, 255, 0.4)",
+                  background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
                 }}
               >
-                Let's work together
-                <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">
+                <span>Let's work together</span>
+                <span className="text-xl leading-none transition-transform duration-300 group-hover:translate-x-1">
                   →
                 </span>
               </button>

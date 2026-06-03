@@ -103,8 +103,8 @@ function generateBrainPositions(): {
   const cy = (minY + maxY) / 2;
   const cz = (minZ + maxZ) / 2;
 
-  // INCREASED SIZE (Multiplier)
-  const SCALE = 1.45;
+  // INCREASED SIZE (Multiplier) - Adjusted to prevent cropping
+  const SCALE = 1.25;
 
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     const p = rawPoints[i];

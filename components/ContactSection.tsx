@@ -1,299 +1,469 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import TypewriterText from "./ui/TypewriterText";
+import ScrollTrigger from "gsap/ScrollTrigger";
 
-// Update this with the target WhatsApp phone number (include country code, e.g., "15550199")
-const WHATSAPP_NUMBER = "15550199";
+gsap.registerPlugin(ScrollTrigger);
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     company: "",
-    brief: "",
     budget: "Under $10k",
+    details: "",
   });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const formContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
-
-    // Validation
-    if (!formData.name.trim() || !formData.email.trim() || !formData.brief.trim()) {
-      setErrorMessage("Please fill in all required fields.");
-      setStatus("error");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErrorMessage("Please enter a valid email address.");
-      setStatus("error");
-      return;
-    }
-
-    setStatus("loading");
+    setIsLoading(true);
 
     try {
-      const formattedMessage = `Hello AVALENCE! I would like to build a project together.
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-*Name:* ${formData.name}
-*Email:* ${formData.email}
-*Company:* ${formData.company || "N/A"}
-*Budget:* ${formData.budget}
-
-*Project Details:*
-${formData.brief}`;
-
-      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(formattedMessage)}`;
-      
-      // Open WhatsApp in a new tab/app
-      window.open(whatsappUrl, "_blank");
-
-      setStatus("success");
-    } catch (err: any) {
-      setStatus("error");
-      setErrorMessage("Failed to initiate WhatsApp chat. Please try again.");
+      if (response.ok) {
+        setSubmitted(true);
+        setFormData({ name: "", email: "", company: "", budget: "Under $10k", details: "" });
+        setTimeout(() => setSubmitted(false), 3000);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const inputStyles = `
-    w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5
-    text-white placeholder-white/35 outline-none transition-all duration-300
-    focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/25
-  `;
-
   return (
-    <section 
-      id="contact" 
+    <section
+      ref={sectionRef}
+      id="contact"
+      style={{ 
+        background: "var(--bg-primary)", 
+        paddingTop: "40px", 
+        paddingBottom: "40px", 
+        minHeight: "100vh", 
+        display: "flex", 
+        alignItems: "center" 
+      }}
       className="section-wrapper"
     >
-      <div className="content-container">
-        
-        {/* ── CINEMATIC ISOLATED HEADING ── */}
-        <div className="text-center max-w-6xl mx-auto mb-16 md:mb-20">
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-[0.95]">
-            Let's Build the <span className="text-[#8B7FFF]">Future</span> Together
+      <div className="content-container" style={{ width: "100%" }}>
+        {/* Heading with typewriter effect */}
+        <div style={{ marginBottom: 30, textAlign: "center" }}>
+          <h2
+            style={{
+              fontSize: "clamp(30px, 4vw, 46px)",
+              fontWeight: 700,
+              color: "var(--text-primary)",
+              margin: 0,
+              marginBottom: 16,
+              minHeight: "60px", // Ensure space for heading even before typewriter completes
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TypewriterText
+              text="Let's Build the Future Together"
+              highlightText="Future"
+              highlightStyle={{ color: "var(--av-primary)", fontSize: "calc(1em + 8px)" }}
+              speed={40}
+              delay={0}
+              className="typewriter-heading"
+              style={{
+                fontSize: "inherit",
+                fontWeight: "inherit",
+                color: "inherit",
+              }}
+            />
           </h2>
+          <p
+            style={{
+              fontSize: 14,
+              color: "var(--text-muted)",
+              maxWidth: 500,
+              margin: "0 auto",
+              lineHeight: 1.5,
+            }}
+          >
+            Tell us about your vision. We'll get back to you within 24 hours with a tailored plan.
+          </p>
         </div>
 
-        {/* ── FORM GRID ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center mt-16 md:mt-20">
-          
-          {/* Left Side: Decorative Visual Sphere */}
-          <div className="contact-left hidden lg:flex justify-center items-center relative w-full h-[500px] pointer-events-none">
-            {/* Soft Glows */}
-            <div className="absolute w-[450px] h-[450px] rounded-full bg-[#6C63FF]/15 blur-[120px] animate-pulse" />
-            <div 
-              className="absolute w-[350px] h-[350px] rounded-full bg-[#4A3FBF]/20 blur-[100px] animate-pulse" 
-              style={{ animationDelay: "1s" }} 
-            />
-            {/* Abstract Wireframe Sphere */}
-            <svg className="relative z-10 w-[400px] h-[400px] opacity-40 animate-[spin_60s_linear_infinite]" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <ellipse 
-                  key={i} 
-                  cx="100" 
-                  cy="100" 
-                  rx="80" 
-                  ry="30" 
-                  fill="none" 
-                  stroke="#6C63FF" 
-                  strokeWidth="0.5" 
-                  transform={`rotate(${i * 15} 100 100)`} 
-                />
-              ))}
-            </svg>
-          </div>
-
-          {/* Right Side: Form */}
-          <div className="w-full relative">
-            <AnimatePresence mode="wait">
-              {status === "success" ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white/[0.02] border border-[#6C63FF]/30 rounded-3xl p-10 md:p-12 shadow-[0_0_50px_rgba(108,99,255,0.15)] flex flex-col items-center justify-center text-center w-full min-h-[500px]"
-                >
-                  {/* Premium Glowing Checkmark Icon */}
-                  <div className="relative w-20 h-20 bg-[#6C63FF]/15 border border-[#8B7FFF]/40 rounded-full flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(108,99,255,0.3)]">
-                    <svg className="w-10 h-10 text-[#8B7FFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-
-                  <h3 className="text-3xl font-extrabold text-white mb-4 tracking-tight">WhatsApp Redirected!</h3>
-                  <p className="text-text-muted mb-10 max-w-sm text-base md:text-lg leading-relaxed">
-                    We've opened a direct WhatsApp chat window. Please send the pre-filled text in WhatsApp to submit your request instantly.
-                  </p>
-                  
-                  <button
-                    onClick={() => {
-                      const formattedMessage = `Hello AVALENCE! I would like to build a project together.
-
-*Name:* ${formData.name}
-*Email:* ${formData.email}
-*Company:* ${formData.company || "N/A"}
-*Budget:* ${formData.budget}
-
-*Project Details:*
-${formData.brief}`;
-                      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(formattedMessage)}`, "_blank");
-                    }}
-                    style={{ backgroundColor: "#6C63FF" }}
-                    className="w-full max-w-[320px] py-4 mt-6 md:mt-8 rounded-full text-white text-sm font-semibold hover:shadow-[0_0_32px_rgba(108,99,255,0.6)] hover:bg-[#5a52e0] transition-all duration-300 active:scale-[0.97]"
-                  >
-                    Re-open WhatsApp Chat
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.form
-                  key="form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  onSubmit={handleSubmit}
-                  className="contact-form space-y-6"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Name */}
-                    <div>
-                      <label className="block text-sm font-medium text-white/70 mb-2">Full Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Aarav Sharma"
-                        className={inputStyles}
-                        required
-                        disabled={status === "loading"}
-                      />
-                    </div>
-                    {/* Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-white/70 mb-2">Email Address *</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="aarav@example.com"
-                        className={inputStyles}
-                        required
-                        disabled={status === "loading"}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Company */}
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-2">Company (Optional)</label>
+        {/* Form in glassmorphism container */}
+        <motion.div
+          ref={formContainerRef}
+          className="glassmorphic"
+          style={{
+            padding: "24px 28px",
+            maxWidth: 520,
+            margin: "0 auto",
+          }}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <AnimatePresence mode="wait">
+            {!submitted ? (
+              <motion.form
+                key="form"
+                onSubmit={handleSubmit}
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                style={{ display: "grid", gap: 14 }}
+                className="contact-form-grid"
+              >
+                {/* Two-column row: Name and Email */}
+                <div className="contact-form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {/* Name Field */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <label
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "var(--text-secondary, rgba(255, 255, 255, 0.7))",
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Full Name *
+                    </label>
                     <input
                       type="text"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleChange}
-                      placeholder="Your Organization"
-                      className={inputStyles}
-                      disabled={status === "loading"}
-                    />
-                  </div>
-
-                  {/* Budget */}
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-2">Estimated Budget</label>
-                    <select
-                      name="budget"
-                      value={formData.budget}
-                      onChange={handleChange}
-                      className={inputStyles}
-                      disabled={status === "loading"}
-                    >
-                      <option className="bg-black text-white" value="Under $10k">Under $10k</option>
-                      <option className="bg-black text-white" value="$10k–$50k">$10k – $50k</option>
-                      <option className="bg-black text-white" value="$50k–$150k">$50k – $150k</option>
-                      <option className="bg-black text-white" value="$150k+">$150k+</option>
-                    </select>
-                  </div>
-
-                  {/* Project Brief */}
-                  <div>
-                    <label className="block text-sm font-medium text-white/70 mb-2">Project Details *</label>
-                    <textarea
-                      name="brief"
-                      value={formData.brief}
-                      onChange={handleChange}
-                      placeholder="Tell us about your project goals, timeline, and any specific challenges..."
-                      rows={5}
-                      className={`${inputStyles} resize-none`}
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Your Name"
                       required
-                      disabled={status === "loading"}
+                      style={{
+                        background: "var(--bg-card, rgba(255, 255, 255, 0.05))",
+                        border: `1px solid var(--border-color, rgba(255, 255, 255, 0.1))`,
+                        borderRadius: 12,
+                        padding: "10px 14px",
+                        fontSize: 14,
+                        color: "var(--text-primary, #ffffff)",
+                        outline: "none",
+                        transition: "all 0.3s ease",
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = "#6C63FF";
+                        e.currentTarget.style.boxShadow =
+                          "0 0 0 3px rgba(108,99,255,0.15)";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
                     />
                   </div>
 
-                  {/* Error Banner */}
-                  {status === "error" && (
-                    <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
-                      {errorMessage}
-                    </div>
-                  )}
+                  {/* Email Field */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <label
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "var(--text-secondary, rgba(255, 255, 255, 0.7))",
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="your@email.com"
+                      required
+                      style={{
+                        background: "var(--bg-card, rgba(255, 255, 255, 0.05))",
+                        border: `1px solid var(--border-color, rgba(255, 255, 255, 0.1))`,
+                        borderRadius: 12,
+                        padding: "10px 14px",
+                        fontSize: 14,
+                        color: "var(--text-primary, #ffffff)",
+                        outline: "none",
+                        transition: "all 0.3s ease",
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = "#6C63FF";
+                        e.currentTarget.style.boxShadow =
+                          "0 0 0 3px rgba(108,99,255,0.15)";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    />
+                  </div>
+                </div>
 
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={status === "loading"}
-                    className="
-                      w-full py-4 rounded-xl font-bold text-white
-                      bg-gradient-to-r from-[#4A3FBF] to-[#6C63FF]
-                      hover:shadow-[0_0_30px_rgba(108,99,255,0.4)]
-                      transition-all duration-300
-                      disabled:opacity-70 disabled:cursor-not-allowed
-                      flex items-center justify-center gap-2
-                    "
+                {/* Company Field */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-secondary, rgba(255, 255, 255, 0.7))",
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                    }}
                   >
-                    {status === "loading" ? (
-                      <>
-                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        Send Message <span className="text-xl leading-none">→</span>
-                      </>
-                    )}
-                  </button>
-                </motion.form>
-              )}
-            </AnimatePresence>
+                    Company (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    placeholder="Your Organization"
+                    style={{
+                      background: "var(--bg-card, rgba(255, 255, 255, 0.05))",
+                      border: `1px solid var(--border-color, rgba(255, 255, 255, 0.1))`,
+                      borderRadius: 12,
+                      padding: "10px 14px",
+                      fontSize: 14,
+                      color: "var(--text-primary, #ffffff)",
+                      outline: "none",
+                      transition: "all 0.3s ease",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "#6C63FF";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,99,255,0.15)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
 
-            {/* Contact Info Footer */}
-            <div className="mt-10 flex flex-col sm:flex-row items-center sm:justify-center lg:justify-start gap-4 sm:gap-6 text-sm text-white/50 pt-8 border-t border-white/[0.05]">
-              <a href="mailto:atom@avalence.ai" className="hover:text-white transition-colors">
-                atom@avalence.ai
-              </a>
-              <span className="hidden sm:inline">•</span>
-              <a href="#" className="hover:text-white transition-colors flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                </svg>
-                LinkedIn
-              </a>
-              <span className="hidden sm:inline">•</span>
-              <span>Based globally · Serving worldwide</span>
-            </div>
+                {/* Budget Dropdown */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-secondary, rgba(255, 255, 255, 0.7))",
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Estimated Budget
+                  </label>
+                  <select
+                    name="budget"
+                    value={formData.budget}
+                    onChange={handleInputChange}
+                    style={{
+                      background: "var(--bg-card, rgba(255, 255, 255, 0.05))",
+                      border: `1px solid var(--border-color, rgba(255, 255, 255, 0.1))`,
+                      borderRadius: 12,
+                      padding: "10px 14px",
+                      fontSize: 14,
+                      color: "var(--text-primary, #ffffff)",
+                      outline: "none",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "#6C63FF";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,99,255,0.15)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <option style={{ background: "#111" }}>Under $10k</option>
+                    <option style={{ background: "#111" }}>$10k - $50k</option>
+                    <option style={{ background: "#111" }}>$50k - $150k</option>
+                    <option style={{ background: "#111" }}>$150k+</option>
+                  </select>
+                </div>
+
+                {/* Project Details Textarea */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <label
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "var(--text-secondary, rgba(255, 255, 255, 0.7))",
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Project Details *
+                  </label>
+                  <textarea
+                    name="details"
+                    value={formData.details}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about your project goals, timeline, and any specific challenges..."
+                    required
+                    rows={3}
+                    style={{
+                      background: "var(--bg-card, rgba(255, 255, 255, 0.05))",
+                      border: `1px solid var(--border-color, rgba(255, 255, 255, 0.1))`,
+                      borderRadius: 12,
+                      padding: "10px 14px",
+                      fontSize: 14,
+                      color: "var(--text-primary, #ffffff)",
+                      outline: "none",
+                      resize: "vertical",
+                      transition: "all 0.3s ease",
+                      fontFamily: "inherit",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "#6C63FF";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,99,255,0.15)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{
+                    background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    color: "white",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    borderRadius: 12,
+                    padding: "14px 28px",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    opacity: isLoading ? 0.7 : 1,
+                    transition: "all 0.3s ease",
+                    marginTop: 4,
+                    boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) {
+                      (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
+                    }
+                  }}
+                >
+                  {isLoading ? "Sending..." : "Send Message"}
+                </motion.button>
+              </motion.form>
+            ) : (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  textAlign: "center",
+                  padding: "40px 20px",
+                }}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 0.6 }}
+                  style={{ fontSize: 48, marginBottom: 16 }}
+                >
+                  ✓
+                </motion.div>
+                <h3
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: "var(--text-primary, #ffffff)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Message Sent Successfully!
+                </h3>
+                <p style={{ color: "var(--text-muted, rgba(255, 255, 255, 0.55))", fontSize: 14 }}>
+                  We've received your message and will get back to you within 24 hours.
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Footer Info */}
+        <div
+          style={{
+            marginTop: 40,
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
+            <a
+              href="mailto:atom@avalence.ai"
+              style={{ color: "var(--text-muted, rgba(255, 255, 255, 0.55))", textDecoration: "none", fontSize: 14, transition: "color 0.3s" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--av-primary, #6C63FF)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--text-muted, rgba(255, 255, 255, 0.55))";
+              }}
+            >
+              atom@avalence.ai
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "var(--text-muted, rgba(255, 255, 255, 0.55))", textDecoration: "none", fontSize: 14, transition: "color 0.3s" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--av-primary, #6C63FF)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--text-muted, rgba(255, 255, 255, 0.55))";
+              }}
+            >
+              LinkedIn ↗
+            </a>
           </div>
+          <p style={{ color: "var(--text-muted, rgba(255, 255, 255, 0.55))", fontSize: 13 }}>
+            Based globally · Serving clients worldwide
+          </p>
         </div>
       </div>
     </section>

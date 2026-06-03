@@ -53,9 +53,9 @@ export default function Footer() {
     {
       title: "Platform",
       links: [
-        { name: "Avalence Core", href: "#" },
-        { name: "Avalence Agentic", href: "#" },
-        { name: "Avalence IntentIQ", href: "#" },
+        { name: "AVALENCE Core", href: "#" },
+        { name: "AVALENCE Agentic", href: "#" },
+        { name: "AVALENCE IntentIQ", href: "#" },
       ],
     },
     {
@@ -69,7 +69,7 @@ export default function Footer() {
     {
       title: "Resources",
       links: [
-        { name: "Open Avalence", href: "#" },
+        { name: "Open AVALENCE", href: "#" },
         { name: "Clinix AI Platform", href: "#" },
         { name: "Contact", href: "#contact" },
       ],
@@ -142,7 +142,7 @@ export default function Footer() {
 
         {/* ── Bottom Bar ── */}
         <div className="flex flex-col justify-start pt-8 border-t border-white/[0.05] text-sm text-white/40">
-          <p>Avalence AI, © 2026. All rights reserved.</p>
+          <p>AVALENCE AI, © 2026. All rights reserved.</p>
         </div>
       </div>
     </footer>

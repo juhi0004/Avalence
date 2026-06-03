@@ -33,8 +33,10 @@ export default function ParallaxController() {
       heroTl.to(".hero-headline", { y: -120, opacity: 0 }, 0);
       // Watermark
       heroTl.to(".hero-watermark", { y: -30 }, 0);
-      // Stats row
-      heroTl.to(".hero-stats", { y: 60, opacity: 0 }, 0);
+      // Stats row (if exists)
+      if (document.querySelector(".hero-stats")) {
+        heroTl.to(".hero-stats", { y: 60, opacity: 0 }, 0);
+      }
 
       // ==========================================
       // 3D Depth Layered Parallax Sections (Element 5)
@@ -106,15 +108,18 @@ export default function ParallaxController() {
       });
 
       // We handle arc draw via strokeDasharray & strokeDashoffset
-      // Using an arbitrary large value 2000 that covers the path length
-      gsap.set(".clients-arc-path", { strokeDasharray: 2000, strokeDashoffset: 2000 });
-      clientsTl.to(".clients-arc-path", { strokeDashoffset: 0, duration: 1.5, ease: "power2.inOut" }, 0);
+      if (document.querySelector(".clients-arc-path")) {
+        gsap.set(".clients-arc-path", { strokeDasharray: 2000, strokeDashoffset: 2000 });
+        clientsTl.to(".clients-arc-path", { strokeDashoffset: 0, duration: 1.5, ease: "power2.inOut" }, 0);
+      }
       
-      clientsTl.to(
-        ".clients-logo",
-        { opacity: 1, duration: 0.8, stagger: 0.1, ease: "power2.out" },
-        0.5 // start as line is drawing
-      );
+      if (document.querySelector(".clients-logo")) {
+        clientsTl.to(
+          ".clients-logo",
+          { opacity: 1, duration: 0.8, stagger: 0.1, ease: "power2.out" },
+          0.5 // start as line is drawing
+        );
+      }
 
       // ==========================================
       // BEAT 4 — CTA Banner
@@ -179,28 +184,8 @@ export default function ParallaxController() {
         );
       }
 
+      // BEAT 6 — Contact section (REMOVED: Now handled by ContactSection.tsx Framer Motion)
       // ==========================================
-      // BEAT 6 — Contact section
-      // ==========================================
-      const contactTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#contact",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      });
-      contactTl.fromTo(
-        ".contact-form",
-        { x: 80, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
-        0
-      );
-      contactTl.fromTo(
-        ".contact-left",
-        { x: -80, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
-        0
-      );
 
     });
 

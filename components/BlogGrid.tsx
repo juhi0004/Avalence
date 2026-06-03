@@ -67,7 +67,7 @@ export default function BlogGrid({ posts }: { posts: any[] }) {
           {/* Body */}
           <div className="p-[20px] flex flex-col flex-grow">
             <div className="text-[13px] text-white/50 mb-3 flex justify-between items-center">
-              <span>{post.author || "Avalence Team"}</span>
+              <span>{post.author || "AVALENCE Team"}</span>
               <span>
                 {post.publishedAt
                   ? new Date(post.publishedAt).toLocaleDateString("en-US", {

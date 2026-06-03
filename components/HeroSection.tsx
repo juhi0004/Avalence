@@ -32,8 +32,6 @@ export default function HeroSection() {
   const ctaRef        = useRef<HTMLButtonElement>(null);
 
   const [showGlow,     setShowGlow]     = useState(false);
-  const [showHint,     setShowHint]     = useState(true);
-  const [hintVisible,  setHintVisible]  = useState(false); // delayed show
   const [transitionComplete, setTransitionComplete] = useState(false);
   const isDark = true;
   const lenis = useLenis();
@@ -42,8 +40,6 @@ export default function HeroSection() {
   const handleBurst = () => {
     if (transitionComplete) return;
     setShowGlow(true);
-    setShowHint(false);
-    setHintVisible(false);
     setTimeout(() => setShowGlow(false), 600);
 
     if (lenis) {
@@ -77,7 +73,6 @@ export default function HeroSection() {
       if (headlineRef.current)   { headlineRef.current.style.opacity  = "1"; headlineRef.current.style.transform = "none"; }
       if (subRef.current)        subRef.current.style.opacity        = "1";
       if (ctaRef.current)        ctaRef.current.style.opacity        = "1";
-      setHintVisible(true);
       return;
     }
 
@@ -167,12 +162,8 @@ export default function HeroSection() {
       });
     }, sectionRef);
 
-    // Show "click to awaken" hint after brain has faded in (~2.4s)
-    const hintTimer = setTimeout(() => setHintVisible(true), 2600);
-
     return () => {
       ctx.revert();
-      clearTimeout(hintTimer);
     };
   }, []);
 
@@ -230,7 +221,7 @@ export default function HeroSection() {
       <div
         ref={canvasWrapRef}
         className="brain-canvas-wrap relative w-full cursor-pointer z-10"
-        style={{ height: "45vh", opacity: 0, maxWidth: "600px", margin: "2vh auto 4vh", flexShrink: 1 }}
+        style={{ height: "38vh", opacity: 0, maxWidth: "600px", margin: "1vh auto 2vh", flexShrink: 1 }}
       >
         <BrainScene
           isDark={isDark}
@@ -239,28 +230,6 @@ export default function HeroSection() {
           onTransitionReverse={() => setTransitionComplete(false)}
         />
       </div>
-
-      {/* ── "Click to Awaken" Hint (16px below canvas) ── */}
-      <AnimatePresence>
-        {showHint && hintVisible && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.4 } }}
-            className="z-10 text-center select-none pointer-events-none"
-            style={{
-              fontSize:      "12px",
-              color:         "rgba(255,255,255,0.3)",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              marginTop:     "16px",
-              animation:     "hintPulse 2s ease-in-out infinite",
-            }}
-          >
-            click to awaken ↓
-          </motion.p>
-        )}
-      </AnimatePresence>
 
       {/* ── Glow Flash ── */}
       <AnimatePresence>
@@ -327,24 +296,28 @@ export default function HeroSection() {
             onClick={scrollToContact}
             className="
               group inline-flex items-center gap-3 mt-8
-              px-10 py-4 rounded-full
-              text-white text-[17px] font-semibold tracking-wide
+              px-12 py-5 rounded-full
+              text-white text-[19px] font-semibold tracking-wide
               transition-all duration-500 ease-out
               active:scale-[0.96]
             "
             style={{ 
               opacity: 0,
-              background: "linear-gradient(135deg, rgba(108, 99, 255, 0.9), rgba(74, 63, 191, 0.9))",
-              boxShadow: "0 8px 32px rgba(108, 99, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
+              background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)";
+              e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
               e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2)";
+              e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
               e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
             }}
           >
             <span>Start Your Project</span>
@@ -352,14 +325,6 @@ export default function HeroSection() {
           </button>
         </div>
       </div>
-
-      {/* ── CSS for hint pulse ── */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes hintPulse {
-          0%, 100% { opacity: 0.2; }
-          50%       { opacity: 0.6; }
-        }
-      `}} />
     </section>
   );
 }

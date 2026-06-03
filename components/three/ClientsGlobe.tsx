@@ -347,9 +347,9 @@ export default function ClientsGlobe() {
   const globeColor = theme === "light" ? "#F0F0FF" : "#0A0A1A";
 
   return (
-    <div style={{ width: "100%", height: "600px", background: "transparent" }}>
+    <div style={{ width: "100%", height: "45vh", minHeight: "350px", maxHeight: "450px", background: "transparent" }}>
       <Canvas
-        camera={{ position: [0, 0, 4], fov: 45 }}
+        camera={{ position: [0, 0, 4.2], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
       >
         <Scene globeColor={globeColor} />

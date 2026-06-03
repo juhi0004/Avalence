@@ -7,10 +7,10 @@ const LOGOS = ["injazat", "Lowe's", "Cognizant", "Trimble", "e2open", "Toyota"];
 
 export default function ClientsSection() {
   return (
-    <section id="clients" className="section-wrapper">
-      <div className="content-container">
+    <section id="clients" className="section-wrapper relative w-full flex flex-col items-center" style={{ paddingTop: "80px", paddingBottom: "80px" }}>
+      <div className="content-container flex flex-col items-center w-full">
         {/* Header Block */}
-        <div className="text-center w-full" style={{ marginBottom: "80px" }}>
+        <div className="text-center w-full" style={{ marginBottom: "20px" }}>
           <h2
             className="font-bold text-white tracking-tight"
             style={{
@@ -36,7 +36,9 @@ export default function ClientsSection() {
         </div>
 
         {/* 3D Clients Globe */}
-        <ClientsGlobe />
+        <div className="w-full" style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <ClientsGlobe />
+        </div>
 
         {/* Muted Client Name Strip */}
         <div
@@ -47,7 +49,7 @@ export default function ClientsSection() {
             alignItems: "center",
             flexWrap: "wrap",
             gap: "24px",
-            marginTop: "32px",
+            marginTop: "16px",
           }}
         >
           {LOGOS.map((logo) => (
