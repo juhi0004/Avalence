@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,7 +20,7 @@ export default function CTASection() {
 
   return (
     <section ref={sectionRef} id="cta" className="section-wrapper" style={{ paddingTop: "60px", paddingBottom: "20px" }}>
-      <div className="content-container">
+      <div className="content-container" style={{ maxWidth: "1400px" }}>
         <div
           ref={cardRef}
           className="cta-banner relative w-full rounded-[24px] bg-black overflow-hidden flex items-center min-h-[420px] shadow-2xl m-0"
@@ -33,7 +34,7 @@ export default function CTASection() {
             <div
               className="absolute top-[-30%] right-[-10%] w-[70%] h-[120%] rounded-full opacity-50 mix-blend-screen"
               style={{
-                background: "var(--av-primary)", // #6C63FF
+                background: "var(--accent)", // #BEA256
                 filter: "blur(100px)",
                 animation: "blob1 15s infinite alternate ease-in-out",
               }}
@@ -42,7 +43,7 @@ export default function CTASection() {
             <div
               className="absolute bottom-[-30%] right-[10%] w-[60%] h-[110%] rounded-full opacity-60 mix-blend-screen"
               style={{
-                background: "var(--av-secondary)", // #4A3FBF
+                background: "var(--accent-dark)", // #8b7355
                 filter: "blur(120px)",
                 animation: "blob2 18s infinite alternate ease-in-out",
                 animationDelay: "-5s",
@@ -54,10 +55,10 @@ export default function CTASection() {
           <div className="absolute inset-0 z-0 bg-black/40 pointer-events-none" />
 
           {/* ── Content ── */}
-          <div className="cta-text relative z-10 w-full px-7 py-10 md:p-[60px] flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="cta-text relative z-10 w-full px-10 py-10 md:pl-[80px] md:pr-[60px] md:py-[60px] flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="max-w-3xl w-full">
               <h2 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl text-white leading-[1.1] tracking-tight mb-10">
-                <span className="font-normal block mb-2 sm:mb-3 text-white/90">
+                <span className="font-normal block mb-2 sm:mb-3 text-[var(--text-secondary)]">
                   We turn bold ideas
                 </span>
                 <span className="font-extrabold block">
@@ -65,38 +66,36 @@ export default function CTASection() {
                 </span>
               </h2>
 
-              <button
+              <motion.button
                 onClick={scrollToContact}
-                className="
-                  group inline-flex items-center gap-3
-                  px-10 py-4 rounded-full
-                  text-white text-[16px] font-semibold tracking-wide
-                  transition-all duration-500 ease-out
-                  active:scale-[0.96]
-                "
                 style={{
-                  background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
+                  background: "rgba(190, 162, 86, 0.15)",
+                  color: "#BEA256",
+                  border: "1.5px solid rgba(190, 162, 86, 0.45)",
+                  borderRadius: 12,
+                  padding: "14px 36px",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginTop: 24,
                   backdropFilter: "blur(12px)",
                   WebkitBackdropFilter: "blur(12px)",
-                  boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 4px 24px rgba(190, 162, 86, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
+                  transition: "all 0.3s ease",
+                  letterSpacing: "0.3px",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
+                whileHover={{
+                  background: "rgba(190, 162, 86, 0.28)",
+                  boxShadow: "0 8px 32px rgba(190, 162, 86, 0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  borderColor: "rgba(190, 162, 86, 0.7)",
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
-                }}
+                whileTap={{ scale: 0.96 }}
               >
-                <span>Let's work together</span>
-                <span className="text-xl leading-none transition-transform duration-300 group-hover:translate-x-1">
-                  →
-                </span>
-              </button>
+                Let's work together →
+              </motion.button>
             </div>
             
             {/* Optional right side column (currently empty for the gradient visual effect to show clearly) */}

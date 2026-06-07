@@ -29,9 +29,9 @@ export default function BrainScene({
       gl={{ antialias: true, alpha: true }}
     >
       <Suspense fallback={null}>
-        <ambientLight color="#6C63FF" intensity={1.5} />
+        <ambientLight color="#BEA256" intensity={1.5} />
         <pointLight position={[2, 2, 2]} color="#ffffff" intensity={0.8} />
-        <pointLight position={[-2, -1, -2]} color="#4A3FBF" intensity={0.5} />
+        <pointLight position={[-2, -1, -2]} color="#8b7355" intensity={0.5} />
 
         <FrustumPlane
           ref={frustumPlaneRef}

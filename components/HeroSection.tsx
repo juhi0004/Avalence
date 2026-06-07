@@ -192,7 +192,7 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 pointer-events-none z-0"
         style={{
-          backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(var(--dot-grid-color) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
           maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)",
           WebkitMaskImage: "linear-gradient(to bottom, black 40%, transparent 100%)"
@@ -206,11 +206,12 @@ export default function HeroSection() {
         style={{ opacity: 0, zIndex: 20, left: "50%", transform: "translateX(-50%)" }}
       >
         <span
-          className="font-black text-white whitespace-nowrap"
+          className="font-black whitespace-nowrap"
           style={{
             fontSize:      "clamp(100px, 18vw, 220px)",
             fontWeight:    900,
             letterSpacing: "0.08em",
+            color:         "#BEA256",
           }}
         >
           AVALENCE
@@ -243,7 +244,7 @@ export default function HeroSection() {
             className="fixed inset-0 z-20 pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle at 50% 40%, rgba(108,99,255,0.8) 0%, transparent 70%)",
+                "radial-gradient(circle at 50% 40%, rgba(212,175,55,0.2) 0%, transparent 70%)",
             }}
           />
         )}
@@ -266,7 +267,7 @@ export default function HeroSection() {
             Building Intelligent Solutions{" "}
             <span
               style={{
-                background:             "linear-gradient(135deg, #6C63FF, #4A3FBF)",
+                background:             "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                 WebkitBackgroundClip:   "text",
                 WebkitTextFillColor:    "transparent",
                 backgroundClip:         "text",
@@ -280,7 +281,7 @@ export default function HeroSection() {
             ref={subRef}
             style={{
               fontSize:   "17px",
-              color:      "rgba(255,255,255,0.55)",
+              color:      "var(--text-muted)",
               maxWidth:   "560px",
               margin:     "16px auto 0",
               lineHeight: 1.7,
@@ -291,40 +292,38 @@ export default function HeroSection() {
             real-world outcomes.
           </p>
 
-          <button
+          <motion.button
             ref={ctaRef}
             onClick={scrollToContact}
-            className="
-              group inline-flex items-center gap-3 mt-8
-              px-12 py-5 rounded-full
-              text-white text-[19px] font-semibold tracking-wide
-              transition-all duration-500 ease-out
-              active:scale-[0.96]
-            "
-            style={{ 
+            style={{
+              background: "#BEA256", // Gold background
+              color: "#0a0a0a", // Dark text on gold
+              border: "none",
+              borderRadius: 999,
+              padding: "14px 32px",
+              fontSize: 16,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              marginTop: 32,
+              boxShadow: "0 8px 32px rgba(190, 162, 86, 0.25)",
+              transition: "all 0.3s ease",
               opacity: 0,
-              background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
-              boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
+            whileHover={{
+              background: "#c9a961",
+              boxShadow: "0 12px 48px rgba(190, 162, 86, 0.4)",
+              transform: "translateY(-3px)",
             }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
-            }}
+            whileTap={{ scale: 0.96 }}
           >
-            <span>Start Your Project</span>
-            <span className="text-xl transition-transform duration-300 group-hover:translate-x-1">→</span>
-          </button>
+            Start Your Project →
+          </motion.button>
         </div>
       </div>
     </section>
   );
 }
+

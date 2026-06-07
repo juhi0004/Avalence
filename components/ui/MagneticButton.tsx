@@ -36,6 +36,8 @@ export default function MagneticButton({ children, className = "" }: MagneticBut
         scale: 1.05,
         duration: 0.3,
         ease: "power2.out",
+        boxShadow: "0 12px 48px rgba(190, 162, 86, 0.4)", // Gold glow on pull
+        overwrite: "auto",
       });
 
       // Animate inner content (parallax within parallax)
@@ -55,6 +57,7 @@ export default function MagneticButton({ children, className = "" }: MagneticBut
         scale: 1,
         duration: 0.6,
         ease: "elastic.out(1, 0.4)",
+        boxShadow: "0 0 0 rgba(190, 162, 86, 0)", // Reset glow
       });
 
       gsap.to(inner, {
@@ -106,3 +109,4 @@ export default function MagneticButton({ children, className = "" }: MagneticBut
     </div>
   );
 }
+

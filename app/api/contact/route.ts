@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export async function POST(req: Request) {
   try {
@@ -15,30 +13,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if Firebase is actually configured in the environment
-    if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
-      console.warn("Firebase config is missing. Simulating successful submission.");
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return NextResponse.json({ success: true, simulated: true });
-    }
-
-    // Add document to "contacts" collection
-    await addDoc(collection(db, "contacts"), {
+    // Log submission server-side (replace with your preferred backend/email service)
+    console.log("Contact form submission:", {
       name,
       email,
       company: company || "",
       brief,
       budget: budget || "Under $10k",
-      createdAt: serverTimestamp(),
+      submittedAt: new Date().toISOString(),
     });
 
+    // Simulate network delay for UX
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     console.error("Error submitting contact form:", error);
-    return NextResponse.json(
-      { error: error?.message || "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

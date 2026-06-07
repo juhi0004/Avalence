@@ -157,7 +157,7 @@ export default function ServicesSection() {
             style={{
               fontSize: "clamp(36px, 5vw, 56px)",
               fontWeight: 700,
-              color: isDark ? "#FFFFFF" : "#0A0A1A",
+              color: "var(--text-primary)",
               margin: 0,
             }}
           >
@@ -168,7 +168,7 @@ export default function ServicesSection() {
             style={{
               maxWidth: 380,
               fontSize: 15,
-              color: isDark ? "rgba(255,255,255,0.45)" : "rgba(10,10,26,0.45)",
+              color: "var(--text-secondary)",
               lineHeight: 1.7,
               margin: 0,
               textAlign: "right",
@@ -191,36 +191,30 @@ export default function ServicesSection() {
           {SERVICES.map((service, index) => {
             const isActive = activeCardId === service.id;
 
-            // Determine dynamic colors based on theme and card position
-            let cardBackground, cardBorder;
-            if (isDark) {
-              if (isActive) {
-                cardBackground = "linear-gradient(145deg, #5A4FD4 0%, #7B74E8 50%, #6C63FF 100%)";
-                cardBorder = "none";
-              } else {
-                cardBackground = "rgba(255,255,255,0.04)";
-                cardBorder = "1px solid rgba(255,255,255,0.08)";
-              }
+            let cardBackground, cardBorder, cardBoxShadow, backdropFilter;
+            if (isActive) {
+              cardBackground = "#c9a961";
+              cardBorder = "1px solid #c9a961";
+              cardBoxShadow = "0 12px 48px rgba(201, 169, 97, 0.3)";
+              backdropFilter = "none";
             } else {
-              if (isActive) {
-                cardBackground = "linear-gradient(145deg, #5A4FD4 0%, #7B74E8 50%, #6C63FF 100%)";
-                cardBorder = "none";
-              } else {
-                cardBackground = "rgba(108,99,255,0.05)";
-                cardBorder = "1px solid rgba(108,99,255,0.12)";
-              }
+              cardBackground = "rgba(190, 162, 86, 0.04)";
+              cardBorder = "1px solid rgba(190, 162, 86, 0.1)";
+              cardBoxShadow = "0 8px 32px rgba(190, 162, 86, 0.05)";
+              backdropFilter = "blur(8px)";
             }
 
-            const numberColor = isDark || isActive ? "rgba(255,255,255,0.35)" : "rgba(10,10,26,0.3)";
-            const arrowColor = isDark || isActive ? "rgba(255,255,255,0.6)" : "rgba(10,10,26,0.5)";
-            const titleColor = isDark || isActive ? "#FFFFFF" : "#0A0A1A";
-            const descriptionColor = isDark || isActive ? "rgba(255,255,255,0.65)" : "#2D2D5E";
-            const featureColor = isDark || isActive ? "rgba(255,255,255,0.7)" : "#2D2D5E";
-            const badgeTextColor = isDark || isActive ? "rgba(255,255,255,0.5)" : "#3D3D6B";
-            const badgeBg = isDark || isActive ? "rgba(255,255,255,0.06)" : "rgba(108,99,255,0.06)";
-            const badgeBorder = isDark || isActive ? "rgba(255,255,255,0.08)" : "rgba(108,99,255,0.1)";
-            const toolsDividerColor = isDark || isActive ? "rgba(255,255,255,0.1)" : "rgba(108,99,255,0.1)";
-            const watermarkColor = isDark || isActive ? "rgba(255,255,255,0.04)" : "rgba(10,10,26,0.04)";
+            const numberColor = isActive ? "#0a0a0a" : "var(--text-muted)";
+            const arrowColor = isActive ? "#0a0a0a" : "var(--accent)";
+            const titleColor = isActive ? "#0a0a0a" : "var(--text-primary)";
+            const descriptionColor = isActive ? "rgba(10, 10, 10, 0.7)" : "var(--text-secondary)";
+            const featureColor = isActive ? "#0a0a0a" : "var(--text-secondary)";
+            const badgeTextColor = isActive ? "#0a0a0a" : "var(--text-muted)";
+            const badgeBg = isActive ? "rgba(10, 10, 10, 0.1)" : "var(--bg-card)";
+            const badgeBorder = isActive ? "rgba(10, 10, 10, 0.2)" : "var(--border-color)";
+            const toolsDividerColor = isActive ? "rgba(10, 10, 10, 0.15)" : "var(--divider)";
+            const watermarkColor = isActive ? "rgba(10, 10, 10, 0.05)" : "var(--watermark-color)";
+            const checkmarkColor = isActive ? "#0a0a0a" : "var(--accent)";
 
             return (
               <div
@@ -237,20 +231,22 @@ export default function ServicesSection() {
                   position: "relative",
                   overflow: "hidden",
                   background: cardBackground,
+                  backdropFilter: backdropFilter,
+                  WebkitBackdropFilter: backdropFilter,
                   border: cardBorder,
-                  boxShadow: "var(--card-shadow)",
+                  boxShadow: cardBoxShadow,
                   cursor: "pointer",
                   transition: "transform 0.5s ease, box-shadow 0.3s ease",
                   transformStyle: "preserve-3d",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transition = "transform 0.1s ease, box-shadow 0.3s ease";
-                  e.currentTarget.style.boxShadow = "0 16px 48px rgba(108,99,255,0.2)";
+                  e.currentTarget.style.boxShadow = "0 16px 48px rgba(190,162,86,0.15)";
                 }}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transition = "transform 0.5s ease, box-shadow 0.3s ease";
-                  e.currentTarget.style.boxShadow = "var(--card-shadow)";
+                  e.currentTarget.style.boxShadow = cardBoxShadow;
                   handleMouseLeave(e);
                 }}
               >
@@ -339,7 +335,7 @@ export default function ServicesSection() {
                             color: featureColor,
                           }}
                         >
-                          <span style={{ color: "#6C63FF", fontSize: 13, minWidth: 16 }}>
+                          <span style={{ color: checkmarkColor, fontSize: 13, minWidth: 16 }}>
                             ✓
                           </span>
                           {item}

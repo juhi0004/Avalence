@@ -83,7 +83,7 @@ export default function ContactSection() {
             <TypewriterText
               text="Let's Build the Future Together"
               highlightText="Future"
-              highlightStyle={{ color: "var(--av-primary)", fontSize: "calc(1em + 8px)" }}
+              highlightStyle={{ color: "var(--accent)", fontSize: "calc(1em + 8px)" }}
               speed={40}
               delay={0}
               className="typewriter-heading"
@@ -165,9 +165,9 @@ export default function ContactSection() {
                         transition: "all 0.3s ease",
                       }}
                       onFocus={(e) => {
-                        e.currentTarget.style.borderColor = "#6C63FF";
+                        e.currentTarget.style.borderColor = "var(--accent)";
                         e.currentTarget.style.boxShadow =
-                          "0 0 0 3px rgba(108,99,255,0.15)";
+                          "0 0 0 3px rgba(212,175,55,0.15)";
                       }}
                       onBlur={(e) => {
                         e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
@@ -207,9 +207,9 @@ export default function ContactSection() {
                         transition: "all 0.3s ease",
                       }}
                       onFocus={(e) => {
-                        e.currentTarget.style.borderColor = "#6C63FF";
+                        e.currentTarget.style.borderColor = "var(--accent)";
                         e.currentTarget.style.boxShadow =
-                          "0 0 0 3px rgba(108,99,255,0.15)";
+                          "0 0 0 3px rgba(212,175,55,0.15)";
                       }}
                       onBlur={(e) => {
                         e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
@@ -249,8 +249,8 @@ export default function ContactSection() {
                       transition: "all 0.3s ease",
                     }}
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "#6C63FF";
-                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,99,255,0.15)";
+                      e.currentTarget.style.borderColor = "var(--accent)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(212,175,55,0.15)";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
@@ -288,8 +288,8 @@ export default function ContactSection() {
                       transition: "all 0.3s ease",
                     }}
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "#6C63FF";
-                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,99,255,0.15)";
+                      e.currentTarget.style.borderColor = "var(--accent)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(212,175,55,0.15)";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
@@ -336,8 +336,8 @@ export default function ContactSection() {
                       fontFamily: "inherit",
                     }}
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "#6C63FF";
-                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,99,255,0.15)";
+                      e.currentTarget.style.borderColor = "var(--accent)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(212,175,55,0.15)";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "var(--border-color, rgba(255, 255, 255, 0.1))";
@@ -350,40 +350,41 @@ export default function ContactSection() {
                 <motion.button
                   type="submit"
                   disabled={isLoading}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   style={{
-                    background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
-                    backdropFilter: "blur(12px)",
-                    WebkitBackdropFilter: "blur(12px)",
-                    color: "white",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    background: isLoading ? "rgba(190, 162, 86, 0.6)" : "#BEA256", // Gold background
+                    color: "#0a0a0a", // Dark text on gold
+                    border: "none",
                     borderRadius: 12,
-                    padding: "14px 28px",
-                    fontSize: 14,
+                    padding: "14px 32px",
+                    fontSize: 15,
                     fontWeight: 600,
                     cursor: isLoading ? "not-allowed" : "pointer",
                     opacity: isLoading ? 0.7 : 1,
                     transition: "all 0.3s ease",
-                    marginTop: 4,
-                    boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+                    width: "100%",
+                    marginTop: 8,
+                    boxShadow: "0 4px 16px rgba(190, 162, 86, 0.2)",
                   }}
+                  whileHover={!isLoading ? {
+                    background: "#c9a961",
+                    boxShadow: "0 8px 32px rgba(190, 162, 86, 0.4)",
+                    transform: "translateY(-2px)",
+                  } : {}}
+                  whileTap={!isLoading ? { scale: 0.98 } : {}}
                   onMouseEnter={(e) => {
                     if (!isLoading) {
-                      (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                        "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
+                      e.currentTarget.style.background = "#c9a961";
+                      e.currentTarget.style.boxShadow = "0 8px 32px rgba(190, 162, 86, 0.4)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isLoading) {
-                      (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                        "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
+                      e.currentTarget.style.background = "#BEA256";
+                      e.currentTarget.style.boxShadow = "0 4px 16px rgba(190, 162, 86, 0.2)";
                     }
                   }}
                 >
-                  {isLoading ? "Sending..." : "Send Message"}
+                  {isLoading ? "Sending..." : "Send Message →"}
                 </motion.button>
               </motion.form>
             ) : (
@@ -438,7 +439,7 @@ export default function ContactSection() {
               href="mailto:atom@avalence.ai"
               style={{ color: "var(--text-muted, rgba(255, 255, 255, 0.55))", textDecoration: "none", fontSize: 14, transition: "color 0.3s" }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--av-primary, #6C63FF)";
+                e.currentTarget.style.color = "var(--accent)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = "var(--text-muted, rgba(255, 255, 255, 0.55))";
@@ -452,7 +453,7 @@ export default function ContactSection() {
               rel="noopener noreferrer"
               style={{ color: "var(--text-muted, rgba(255, 255, 255, 0.55))", textDecoration: "none", fontSize: 14, transition: "color 0.3s" }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--av-primary, #6C63FF)";
+                e.currentTarget.style.color = "var(--accent)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = "var(--text-muted, rgba(255, 255, 255, 0.55))";
@@ -469,3 +470,4 @@ export default function ContactSection() {
     </section>
   );
 }
+

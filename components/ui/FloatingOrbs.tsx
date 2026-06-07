@@ -43,7 +43,7 @@ export default function FloatingOrbs() {
     >
       {/* Orb 1 */}
       <div
-        className="floating-orb absolute rounded-full bg-gradient-to-br from-[#6C63FF] to-transparent"
+        className="floating-orb absolute rounded-full bg-gradient-to-br from-[var(--accent)] to-transparent"
         style={{
           width: "600px",
           height: "600px",
@@ -55,7 +55,7 @@ export default function FloatingOrbs() {
       />
       {/* Orb 2 */}
       <div
-        className="floating-orb absolute rounded-full bg-gradient-to-br from-[#4A3FBF] to-transparent"
+        className="floating-orb absolute rounded-full bg-gradient-to-br from-[var(--accent-dark)] to-transparent"
         style={{
           width: "400px",
           height: "400px",
@@ -67,7 +67,7 @@ export default function FloatingOrbs() {
       />
       {/* Orb 3 */}
       <div
-        className="floating-orb absolute rounded-full bg-gradient-to-br from-[#8B7FFF] to-transparent"
+        className="floating-orb absolute rounded-full bg-gradient-to-br from-[var(--accent-hover)] to-transparent"
         style={{
           width: "500px",
           height: "500px",
@@ -79,7 +79,7 @@ export default function FloatingOrbs() {
       />
       {/* Orb 4 */}
       <div
-        className="floating-orb absolute rounded-full bg-gradient-to-br from-[#6C63FF] to-transparent"
+        className="floating-orb absolute rounded-full bg-gradient-to-br from-[var(--accent)] to-transparent"
         style={{
           width: "300px",
           height: "300px",
@@ -91,7 +91,7 @@ export default function FloatingOrbs() {
       />
       {/* Orb 5 */}
       <div
-        className="floating-orb absolute rounded-full bg-gradient-to-br from-[#4A3FBF] to-transparent"
+        className="floating-orb absolute rounded-full bg-gradient-to-br from-[var(--accent-dark)] to-transparent"
         style={{
           width: "450px",
           height: "450px",

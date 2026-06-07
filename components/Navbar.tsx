@@ -112,7 +112,7 @@ export default function Navbar() {
           fixed top-0 left-0 w-full z-50
           transition-all duration-300
           ${scrolled
-            ? "bg-white/[0.03] backdrop-blur-xl border-b border-white/[0.1] shadow-[0_1px_30px_rgba(108,99,255,0.05)]"
+            ? "bg-[var(--navbar-bg)] backdrop-blur-xl border-b border-[var(--navbar-border)] shadow-[0_1px_30px_rgba(212,175,55,0.05)]"
             : "bg-transparent border-b border-transparent"
           }
         `}
@@ -131,12 +131,12 @@ export default function Navbar() {
             aria-label="Scroll to top"
           >
             <span
-              className="text-white transition-colors duration-300 group-hover:text-white/90"
+              className="text-[var(--text-primary)] transition-colors duration-300 hover:text-[var(--accent)]"
               style={{ fontSize: "18px", fontWeight: 800, letterSpacing: "0.15em", lineHeight: 1 }}
             >
               AVALENCE
             </span>
-            <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", marginTop: "4px", letterSpacing: "0.05em", fontStyle: "italic" }}>
+            <span style={{ fontSize: "9px", color: "var(--text-muted)", marginTop: "4px", letterSpacing: "0.05em", fontStyle: "italic" }}>
               simple, scalable, seamlessly yours
             </span>
           </button>
@@ -153,7 +153,7 @@ export default function Navbar() {
             {/* Sliding Underline Indicator */}
             <div
               ref={hoverUnderlineRef}
-              className="absolute bottom-0 h-[2px] bg-[#6C63FF] rounded-full opacity-0 pointer-events-none"
+              className="absolute bottom-0 h-[2px] bg-[var(--accent)] rounded-full opacity-0 pointer-events-none"
               style={{ transition: "opacity 0.2s" }}
             />
 
@@ -168,7 +168,7 @@ export default function Navbar() {
                     nav-btn nav-btn-${link.href.slice(1)}
                     relative text-[14px] font-medium py-1
                     transition-colors duration-200
-                    ${isActive ? "nav-btn-active text-white" : "text-white/65 hover:text-white"}
+                    ${isActive ? "nav-btn-active text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"}
                   `}
                 >
                   {link.label}
@@ -181,32 +181,31 @@ export default function Navbar() {
           <div className="flex-1" />
 
           {/* CTA — far right */}
-            <button
+            <motion.button
               onClick={() => scrollTo("#contact")}
-              className="hidden md:block shrink-0 text-white text-[14px] font-semibold
-                transition-all duration-500 ease-out active:scale-[0.97]"
               style={{
-                background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                padding: "12px 28px",
-                borderRadius: "999px",
-                boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+                marginLeft: "auto",
+                background: "#BEA256", // Gold background
+                color: "#0a0a0a", // Dark text on gold
+                border: "none",
+                borderRadius: 999,
+                padding: "10px 22px",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: "0 4px 16px rgba(190, 162, 86, 0.25)",
+                transition: "all 0.3s ease",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = "0 12px 48px rgba(108, 99, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35)";
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.5), rgba(74, 63, 191, 0.5))";
+              whileHover={{
+                background: "#c9a961", // Darker gold on hover
+                boxShadow: "0 8px 32px rgba(190, 162, 86, 0.4)",
+                transform: "translateY(-2px)",
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)";
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.background = "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))";
-              }}
+              whileTap={{ scale: 0.96 }}
+              className="hidden md:block shrink-0"
             >
               Get Started →
-            </button>
+            </motion.button>
 
           {/* Mobile Hamburger */}
           <button
@@ -237,8 +236,8 @@ export default function Navbar() {
             className="
               fixed inset-x-0 top-[72px] z-40
               md:hidden
-              bg-black/90 backdrop-blur-2xl
-              border-b border-white/[0.06]
+              bg-[var(--bg-secondary)] backdrop-blur-2xl
+              border-b border-[var(--border-color)]
               px-6 py-6 flex flex-col gap-2
             "
           >
@@ -252,8 +251,8 @@ export default function Navbar() {
                     w-full text-left px-4 py-3 rounded-xl text-base font-medium
                     transition-colors duration-200
                     ${isActive
-                      ? "text-white bg-white/[0.06]"
-                      : "text-white/65 hover:text-white hover:bg-white/[0.03]"
+                      ? "text-[var(--text-primary)] bg-[var(--bg-card)]"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)]"
                     }
                   `}
                 >
@@ -261,25 +260,36 @@ export default function Navbar() {
                 </button>
               );
             })}
-            <button
+            <motion.button
               onClick={() => scrollTo("#contact")}
-              className="mt-2 w-full text-center text-base font-semibold text-white
-                transition-all duration-500 ease-out active:scale-[0.98]"
               style={{
-                background: "linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(74, 63, 191, 0.35))",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                padding: "14px 28px",
-                borderRadius: "999px",
-                boxShadow: "0 8px 32px rgba(108, 99, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25)",
+                background: "#BEA256", // Gold background
+                color: "#0a0a0a", // Dark text on gold
+                border: "none",
+                borderRadius: 999,
+                padding: "10px 22px",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: "0 4px 16px rgba(190, 162, 86, 0.25)",
+                transition: "all 0.3s ease",
+                width: "100%",
+                marginTop: "16px",
               }}
+              whileHover={{
+                background: "#c9a961", // Darker gold on hover
+                boxShadow: "0 8px 32px rgba(190, 162, 86, 0.4)",
+                transform: "translateY(-2px)",
+              }}
+              whileTap={{ scale: 0.96 }}
+              className="text-center"
             >
               Get Started →
-            </button>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
     </>
   );
 }
+

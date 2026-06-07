@@ -12,7 +12,7 @@ export default function ClientsSection() {
         {/* Header Block */}
         <div className="text-center w-full" style={{ marginBottom: "20px" }}>
           <h2
-            className="font-bold text-white tracking-tight"
+            className="font-bold text-[var(--text-primary)] tracking-tight"
             style={{
               fontSize: "clamp(28px, 3.5vw, 42px)",
               marginBottom: "12px",
@@ -25,7 +25,7 @@ export default function ClientsSection() {
           <p
             style={{
               fontSize: "15px",
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-muted)",
               fontWeight: 400,
               letterSpacing: "0.02em",
               marginTop: "12px",
@@ -57,7 +57,7 @@ export default function ClientsSection() {
               key={logo}
               style={{
                 fontSize: "14px",
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-muted)",
                 fontWeight: 600,
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",

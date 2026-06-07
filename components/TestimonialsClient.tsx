@@ -3,6 +3,9 @@
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* ── Testimonial Data ── */
 const TESTIMONIALS = [
@@ -147,13 +150,34 @@ function TestimonialCard({
           style={{ opacity: 0, transition: "opacity 0.3s" }}
         />
 
-        {/* Stars with glow background */}
-        <div className="tc-stars-wrap">
-          <div className="tc-stars" aria-label="5 stars">
+        {/* Stars and Featured Badge */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+          <div style={{
+            display: "flex",
+            gap: 6,
+            fontSize: 16,
+            color: "#BEA256", // Gold stars
+            textShadow: "0 0 4px rgba(190, 162, 86, 0.4)", // Glow effect
+          }}>
             {[...Array(testimonial.stars)].map((_, i) => (
               <span key={i}>★</span>
             ))}
           </div>
+          
+          {index === 0 && (
+            <span style={{
+              background: "#BEA256",
+              color: "#0a0a0a",
+              padding: "4px 12px",
+              borderRadius: 6,
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}>
+              Featured
+            </span>
+          )}
         </div>
 
         {/* Quote accent line */}
@@ -164,7 +188,23 @@ function TestimonialCard({
 
         {/* Author */}
         <div className="tc-author">
-          <div className="tc-avatar">{testimonial.author.initials}</div>
+          <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #BEA256, #c9a961)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 16,
+            fontWeight: 700,
+            color: "#0a0a0a",
+            border: "2px solid #BEA256",
+            boxShadow: "0 0 16px rgba(190, 162, 86, 0.4)",
+            flexShrink: 0
+          }}>
+            {testimonial.author.initials}
+          </div>
           <div className="tc-author-info">
             <span className="tc-name">{testimonial.author.name}</span>
             <span className="tc-title">
@@ -180,12 +220,71 @@ function TestimonialCard({
 
 /* ── Main Exported Component ── */
 export default function TestimonialsClient() {
+  const headingStr = "What Our Customers Say";
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+
+    const chars = headerRef.current.querySelectorAll(".tc-char");
+    const sub = headerRef.current.querySelector(".tc-subheading");
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: headerRef.current,
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+      }
+    });
+
+    // 3D Cinematic Text Reveal
+    tl.to(chars, {
+      rotateX: 0,
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 1.2,
+      ease: "power3.out",
+      stagger: 0.04,
+    })
+    // Subheading soft fade
+    .to(sub, {
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 1,
+      ease: "power2.out",
+    }, "-=0.9"); // Start 0.3s after heading starts (1.2 - 0.9 = 0.3)
+
+    return () => {
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, []);
+
   return (
     <div className="tc-section">
       {/* Header */}
-      <div className="tc-header">
-        <h3 className="tc-heading">What Our Customers Say</h3>
-        <p className="tc-subheading">
+      <div className="tc-header" ref={headerRef}>
+        <h3 className="tc-heading" style={{ perspective: "1000px" }}>
+          {headingStr.split("").map((char, i) => (
+            <span
+              key={i}
+              className="tc-char"
+              style={{
+                display: "inline-block",
+                whiteSpace: char === " " ? "pre" : "normal",
+                opacity: 0,
+                transformOrigin: "bottom center",
+                transform: "rotateX(90deg) translateY(20px)",
+                filter: "blur(10px)",
+                willChange: "transform, opacity, filter"
+              }}
+            >
+              {char}
+            </span>
+          ))}
+        </h3>
+        <p className="tc-subheading" style={{ opacity: 0, transform: "translateY(20px)", filter: "blur(8px)", willChange: "transform, opacity, filter" }}>
           Enterprise-grade feedback from industry leaders collaborating with
           AVALENCE
         </p>
@@ -223,17 +322,18 @@ export default function TestimonialsClient() {
 }
 
 .tc-heading {
-  font-size: clamp(32px, 4.5vw, 48px);
-  font-weight: 700;
-  color: #ffffff;
+  font-size: clamp(44px, 6vw, 72px);
+  font-weight: 900;
+  font-family: 'Satoshi', sans-serif;
+  color: var(--text-primary);
   margin-bottom: 16px;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 .tc-subheading {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -261,8 +361,10 @@ export default function TestimonialsClient() {
   position: relative;
   padding: 40px 36px;
   border-radius: 24px;
-  background: var(--av-card-surface, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--av-card-border, rgba(255, 255, 255, 0.08));
+  background: rgba(190, 162, 86, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(190, 162, 86, 0.1);
   min-height: 380px;
   display: flex;
   flex-direction: column;
@@ -279,7 +381,7 @@ export default function TestimonialsClient() {
 .tc-card:hover {
   transform: translateY(-12px) translateZ(0);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  border-color: rgba(108, 99, 255, 0.3);
+  border-color: var(--accent);
 }
 
 @media (max-width: 768px) {
@@ -300,7 +402,7 @@ export default function TestimonialsClient() {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(108, 99, 255, 0.35), transparent 70%);
+  background: radial-gradient(circle, var(--accent), transparent 70%);
   opacity: 0.06;
   pointer-events: none;
 }
@@ -327,7 +429,7 @@ export default function TestimonialsClient() {
   border-radius: 8px;
   font-size: 14px;
   letter-spacing: 2px;
-  color: #FFB800;
+  color: var(--accent);
   line-height: 1;
 }
 
@@ -335,7 +437,7 @@ export default function TestimonialsClient() {
 .tc-quote-line {
   width: 3px;
   height: 40px;
-  background: linear-gradient(180deg, var(--av-primary, #6C63FF), transparent);
+  background: linear-gradient(180deg, var(--accent), transparent);
   border-radius: 2px;
   margin-bottom: 16px;
 }
@@ -343,7 +445,7 @@ export default function TestimonialsClient() {
 /* ── Quote ── */
 .tc-quote {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-primary);
   line-height: 1.8;
   font-style: italic;
   font-weight: 400;
@@ -370,7 +472,7 @@ export default function TestimonialsClient() {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--av-primary, #6C63FF), #9D97FF);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,13 +480,13 @@ export default function TestimonialsClient() {
   font-weight: 700;
   color: #ffffff;
   flex-shrink: 0;
-  box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
-  border: 2px solid rgba(108, 99, 255, 0.4);
+  box-shadow: 0 0 20px rgba(190, 162, 86, 0.2);
+  border: 2px solid rgba(190, 162, 86, 0.4);
   transition: border-color 0.3s;
 }
 
 .tc-card:hover .tc-avatar {
-  border-color: var(--av-primary, #6C63FF);
+  border-color: var(--accent);
 }
 
 @media (max-width: 768px) {
@@ -404,18 +506,18 @@ export default function TestimonialsClient() {
 .tc-name {
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: 0.02em;
 }
 
 .tc-title {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .tc-company {
-  color: rgba(108, 99, 255, 0.7);
+  color: var(--accent);
 }
 
 /* ── Footer ── */
@@ -429,7 +531,7 @@ export default function TestimonialsClient() {
 .tc-footer-line {
   width: 60px;
   height: 1px;
-  background: var(--av-card-border, rgba(255, 255, 255, 0.08));
+  background: var(--border-color);
   margin-bottom: 40px;
 }
 
@@ -451,3 +553,4 @@ export default function TestimonialsClient() {
     </div>
   );
 }
+

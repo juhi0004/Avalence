@@ -38,16 +38,16 @@ export default function ScrollProgress() {
       ref={progressBarRef}
       className="fixed top-0 left-0 h-[2px] z-[100] flex items-center justify-end"
       style={{
-        background: "linear-gradient(90deg, #6C63FF, #C4C0FF, #6C63FF)",
+        background: "linear-gradient(90deg, var(--accent), var(--text-primary), var(--accent))",
         width: "0%",
       }}
     >
       {/* Glowing Dot at the right end */}
       <div
         ref={glowDotRef}
-        className="w-[8px] h-[8px] rounded-full bg-[#6C63FF] translate-x-[4px]"
+        className="w-[8px] h-[8px] rounded-full bg-[var(--accent)] translate-x-[4px]"
         style={{
-          boxShadow: "0 0 8px #6C63FF, 0 0 16px #6C63FF",
+          boxShadow: "0 0 8px var(--accent), 0 0 16px var(--accent)",
         }}
       />
     </div>

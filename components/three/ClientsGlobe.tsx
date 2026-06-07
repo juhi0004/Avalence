@@ -53,7 +53,7 @@ function Globe({ globeColor }: { globeColor: string }) {
       <mesh>
         <sphereGeometry args={[1.52, 24, 16]} />
         <meshBasicMaterial
-          color="#6C63FF"
+          color="#BEA256"
           wireframe={true}
           transparent={true}
           opacity={0.08}
@@ -64,11 +64,11 @@ function Globe({ globeColor }: { globeColor: string }) {
       <mesh>
         <sphereGeometry args={[1.65, 32, 32]} />
         <meshStandardMaterial
-          color="#6C63FF"
+          color="#BEA256"
           transparent={true}
           opacity={0.04}
           side={THREE.BackSide}
-          emissive="#6C63FF"
+          emissive="#BEA256"
           emissiveIntensity={0.5}
         />
       </mesh>
@@ -148,8 +148,8 @@ function Pin({ client, isHovered, onHover, isAnyHovered }: any) {
       >
         <sphereGeometry args={[0.025, 8, 8]} />
         <meshStandardMaterial
-          color="#6C63FF"
-          emissive="#6C63FF"
+          color="#BEA256"
+          emissive="#BEA256"
           emissiveIntensity={1.5}
           transparent
         />
@@ -158,7 +158,7 @@ function Pin({ client, isHovered, onHover, isAnyHovered }: any) {
       <Billboard>
         <mesh ref={ringRef}>
           <ringGeometry args={[0.03, 0.05, 16]} />
-          <meshBasicMaterial color="#6C63FF" transparent opacity={1} side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#BEA256" transparent opacity={1} side={THREE.DoubleSide} />
         </mesh>
       </Billboard>
 
@@ -168,7 +168,7 @@ function Pin({ client, isHovered, onHover, isAnyHovered }: any) {
             style={{
               fontSize: "11px",
               color: "white",
-              background: "rgba(108,99,255,0.8)",
+              background: "rgba(212,175,55,0.8)",
               padding: "3px 8px",
               borderRadius: "4px",
               whiteSpace: "nowrap",
@@ -197,7 +197,7 @@ function Pin({ client, isHovered, onHover, isAnyHovered }: any) {
                   padding: "4px 8px",
                   borderRadius: "4px",
                   whiteSpace: "nowrap",
-                  border: "1px solid rgba(108,99,255,0.4)",
+                  border: "1px solid rgba(212,175,55,0.4)",
                 }}
               >
                 {client.desc}
@@ -237,7 +237,7 @@ function ConnectionArc({ client, index }: { client: any; index: number }) {
   });
 
   const linePrimitive = useMemo(() => {
-    const mat = new THREE.LineBasicMaterial({ color: 0x9d97ff, transparent: true, opacity: 0.25 });
+    const mat = new THREE.LineBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.25 });
     return new THREE.Line(lineGeometry, mat);
   }, [lineGeometry]);
 

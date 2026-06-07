@@ -28,7 +28,7 @@ function TunnelParticles() {
       const radius = 2.5 + Math.random() * 1.5;
       // z = (i / 6000) * 80 - 40 (spread from z: -40 to z: +40)
       const z = (i / PARTICLE_COUNT) * 80 - 40;
-      
+
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius;
 
@@ -85,7 +85,7 @@ function TunnelParticles() {
 
     // Move camera forward based on scroll velocity
     camera.position.z -= scrollVelocity.current * 0.08;
-    
+
     // Decay scroll velocity
     scrollVelocity.current *= 0.92;
 
@@ -107,7 +107,7 @@ function TunnelParticles() {
         posArray[zIndex] = camera.position.z + 5;
       }
     }
-    
+
     positionsAttr.needsUpdate = true;
   });
 
@@ -145,7 +145,7 @@ export default function ParticleTunnel() {
     if (!containerRef.current) return;
 
     const sections = document.querySelectorAll(".section-wrapper");
-    
+
     // Create ScrollTriggers for each section transition to show the tunnel
     sections.forEach((section) => {
       ScrollTrigger.create({
@@ -157,7 +157,7 @@ export default function ParticleTunnel() {
           let progress = self.progress;
           // Ramp up from 0 to 0.5 progress, ramp down from 0.5 to 1.0 progress
           let opacity = progress < 0.5 ? progress * 2 : (1 - progress) * 2;
-          
+
           if (containerRef.current) {
             gsap.to(containerRef.current, {
               opacity: opacity,

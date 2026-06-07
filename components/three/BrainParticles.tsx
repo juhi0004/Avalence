@@ -29,9 +29,9 @@ function generateBrainPositions(): {
   const colors = new Float32Array(PARTICLE_COUNT * 3);
 
   // Holographic glowing colors
-  const colTop = new THREE.Color("#C4C0FF");
-  const colMid = new THREE.Color("#9D97FF");
-  const colBottom = new THREE.Color("#6C63FF");
+  const colTop = new THREE.Color("#e8dcc8");
+  const colMid = new THREE.Color("#BEA256");
+  const colBottom = new THREE.Color("#8b7355");
   const colHighlight = new THREE.Color("#ffffff");
 
   function isInsideBrain(x: number, y: number, z: number) {
