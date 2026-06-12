@@ -72,7 +72,7 @@ export default function Navbar() {
       if (!el) return;
       const observer = new IntersectionObserver(
         ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
-        { rootMargin: "-40% 0px -55% 0px" }
+        { rootMargin: "-10% 0px -70% 0px" }
       );
       observer.observe(el);
       observers.push(observer);
@@ -83,15 +83,35 @@ export default function Navbar() {
   /* ── Smooth scroll ── */
   const scrollTo = useCallback((href: string) => {
     setMobileOpen(false);
-    if (lenis) {
-      lenis.scrollTo(href, { duration: 1.5, lock: false });
-    } else {
-      const id  = href.replace("#", "");
-      const el  = document.getElementById(id);
-      if (el) {
-        const y = el.getBoundingClientRect().top + window.pageYOffset - 72;
+
+    // If navigating to #services, make sure the section is visible first
+    // (it hides itself on desktop until the zoom transition fires)
+    if (href === "#services") {
+      window.dispatchEvent(new CustomEvent("avalence:servicesReveal"));
+    }
+
+    const doScroll = () => {
+      const id = href.replace("#", "");
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      if (lenis) {
+        // Pass the DOM element directly — Lenis calculates its own position
+        // using the element's offsetTop via its internal wrapper, which is
+        // reliable regardless of CSS transforms on parent elements.
+        lenis.scrollTo(el, { duration: 1.4, offset: -88 });
+      } else {
+        // Fallback: use getBoundingClientRect for viewport-relative position
+        const y = el.getBoundingClientRect().top + window.scrollY - 88;
         window.scrollTo({ top: y, behavior: "smooth" });
       }
+    };
+
+    // Give ServicesSection a frame to become visible before scrolling
+    if (href === "#services") {
+      requestAnimationFrame(() => requestAnimationFrame(doScroll));
+    } else {
+      doScroll();
     }
   }, [lenis]);
 

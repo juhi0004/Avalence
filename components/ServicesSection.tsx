@@ -45,12 +45,17 @@ export default function ServicesSection() {
     const heroSection = document.getElementById("home");
     if (heroSection) {
       const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
-      if (window.scrollY > heroBottom * 0.7) {
+      if (window.scrollY > heroBottom * 0.3) {
         setIsVisible(true);
       }
     }
 
     const handleReveal = () => {
+      // If already visible (e.g. user navigated via navbar), just ensure opacity=1
+      if (isVisible) {
+        if (sectionRef.current) gsap.set(sectionRef.current, { opacity: 1, y: 0 });
+        return;
+      }
       setIsVisible(true);
       if (!sectionRef.current) return;
 

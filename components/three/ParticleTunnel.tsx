@@ -36,15 +36,15 @@ function TunnelParticles() {
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = z;
 
-      // Color gradient along Z axis
+      // Color gradient along Z axis — gold shades
       if (z < -20) {
-        color.setHex(0x4A3FBF); // deep violet
+        color.setHex(0x6B4F1A); // deep amber-brown
       } else if (z >= -20 && z < 0) {
-        color.setHex(0x6C63FF); // violet
+        color.setHex(0xBEA256); // rich gold (brand accent)
       } else if (z >= 0 && z < 20) {
-        color.setHex(0x9D97FF); // light violet
+        color.setHex(0xD4B96A); // light warm gold
       } else {
-        color.setHex(0xC4C0FF); // lavender
+        color.setHex(0xEDD998); // pale champagne
       }
 
       cols[i * 3] = color.r;

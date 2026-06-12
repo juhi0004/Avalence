@@ -7,7 +7,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ── Testimonial Data ── */
 const TESTIMONIALS = [
   {
     id: 1,
@@ -43,6 +42,42 @@ const TESTIMONIALS = [
       title: "Founder",
       company: "Sentix AI",
       initials: "ER",
+    },
+  },
+  {
+    id: 4,
+    stars: 5,
+    quote:
+      "Avalence has redefined how we orchestrate agentic workflows across our logistics platforms. The performance is incredibly reliable, and resource overhead is minimal.",
+    author: {
+      name: "Marcus Vance",
+      title: "Chief Innovation Officer",
+      company: "Vance Logistics",
+      initials: "MV",
+    },
+  },
+  {
+    id: 5,
+    stars: 5,
+    quote:
+      "The degree of customization and visual fidelity provided by Avalence's interfaces is outstanding. They bridge the gap between complex AI logic and intuitive user experiences.",
+    author: {
+      name: "Yuki Tanaka",
+      title: "VP of AI Research",
+      company: "Nexus Automation",
+      initials: "YT",
+    },
+  },
+  {
+    id: 6,
+    stars: 5,
+    quote:
+      "Deploying AVALENCE to production was the smoothest integration we've had this year. Customer engagement and throughput metrics have both seen substantial improvement.",
+    author: {
+      name: "Amara Okafor",
+      title: "Director of Product",
+      company: "Fintech Flow",
+      initials: "AO",
     },
   },
 ];
@@ -223,6 +258,68 @@ export default function TestimonialsClient() {
   const headingStr = "What Our Customers Say";
   const headerRef = useRef<HTMLDivElement>(null);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const containerCenter = container.scrollLeft + container.offsetWidth / 2;
+    let closestIndex = 0;
+    let minDistance = Infinity;
+
+    cardRefs.current.forEach((card, index) => {
+      if (!card) return;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const diff = cardCenter - containerCenter;
+      const distance = Math.abs(diff);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = index;
+      }
+
+      // Compute uplift (translateY and scale) based on distance
+      const maxDistance = card.offsetWidth + 32;
+      const ratio = distance / maxDistance;
+      const clampedRatio = Math.max(0, Math.min(1, ratio));
+
+      const scale = 1.05 - clampedRatio * 0.10; // active card is 1.05, side cards are 0.95
+      const translateY = -16 + clampedRatio * 16; // active card is uplifted by -16px
+      const opacity = 1 - clampedRatio * 0.45; // side cards have lower opacity
+      const zIndex = Math.round(100 - clampedRatio * 10);
+
+      card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+      card.style.opacity = opacity.toString();
+      card.style.zIndex = zIndex.toString();
+    });
+
+    setCurrentIndex(closestIndex);
+  }, []);
+
+  const scrollToIndex = useCallback((index: number) => {
+    const container = containerRef.current;
+    const card = cardRefs.current[index];
+    if (container && card) {
+      const targetScrollLeft = card.offsetLeft - (container.offsetWidth - card.offsetWidth) / 2;
+      container.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
+    }
+  }, []);
+
+  // Trigger initial scroll calculation to apply 3D transforms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleScroll();
+    }, 100);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [handleScroll]);
+
   useEffect(() => {
     if (!headerRef.current) return;
 
@@ -290,11 +387,56 @@ export default function TestimonialsClient() {
         </p>
       </div>
 
-      {/* Cards Grid */}
-      <div className="tc-grid">
-        {TESTIMONIALS.map((t, i) => (
-          <TestimonialCard key={t.id} testimonial={t} index={i} />
-        ))}
+      {/* 3D Carousel Wrapper */}
+      <div className="tc-carousel-wrapper">
+        <div 
+          ref={containerRef} 
+          className="tc-carousel-container"
+          onScroll={handleScroll}
+        >
+          {TESTIMONIALS.map((t, i) => (
+            <div
+              key={t.id}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
+              className="tc-carousel-item"
+            >
+              <TestimonialCard testimonial={t} index={i} />
+            </div>
+          ))}
+        </div>
+
+        {/* Carousel Controls */}
+        <div className="tc-controls">
+          <button 
+            onClick={() => scrollToIndex(currentIndex - 1)}
+            disabled={currentIndex === 0}
+            className="tc-arrow tc-arrow-left"
+            aria-label="Previous testimonial"
+          >
+            ←
+          </button>
+          
+          <div className="tc-counter">
+            <span className="tc-counter-active">
+              {String(currentIndex + 1).padStart(2, '0')}
+            </span>
+            <span className="tc-counter-divider">/</span>
+            <span className="tc-counter-total">
+              {String(TESTIMONIALS.length).padStart(2, '0')}
+            </span>
+          </div>
+
+          <button 
+            onClick={() => scrollToIndex(currentIndex + 1)}
+            disabled={currentIndex === TESTIMONIALS.length - 1}
+            className="tc-arrow tc-arrow-right"
+            aria-label="Next testimonial"
+          >
+            →
+          </button>
+        </div>
       </div>
 
       {/* Footer accent */}
@@ -312,13 +454,13 @@ export default function TestimonialsClient() {
 /* ── Section ── */
 .tc-section {
   position: relative;
-  padding: 140px 0 20px;
+  padding: 50px 0 10px;
 }
 
 /* ── Header ── */
 .tc-header {
   text-align: center;
-  margin-bottom: 100px;
+  margin-bottom: 25px;
 }
 
 .tc-heading {
@@ -339,33 +481,144 @@ export default function TestimonialsClient() {
   line-height: 1.6;
 }
 
-/* ── Grid ── */
-.tc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* ── Carousel ── */
+.tc-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 10px 0 70px; /* Space for integrated controls */
+}
+
+.tc-carousel-container {
+  display: flex;
   gap: 32px;
-  perspective: 1200px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  --card-width: calc((100% - 64px) / 3);
+  padding: 60px calc(50% - var(--card-width) / 2) 80px;
+  perspective: 1500px;
+  transform-style: preserve-3d;
+  scroll-behavior: smooth;
+  will-change: scroll-position;
+}
+
+.tc-carousel-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tc-carousel-item {
+  width: var(--card-width);
+  max-width: 400px;
+  min-width: 300px;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  transition: transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.15s ease;
+  transform-style: preserve-3d;
+  perspective: 1500px;
 }
 
 @media (max-width: 1024px) {
-  .tc-grid { grid-template-columns: repeat(2, 1fr); }
+  .tc-carousel-container {
+    --card-width: calc((100% - 32px) / 2);
+    padding: 40px calc(50% - var(--card-width) / 2) 80px;
+  }
+  .tc-carousel-item {
+    width: var(--card-width);
+    min-width: 280px;
+  }
 }
+
 @media (max-width: 768px) {
-  .tc-grid { grid-template-columns: 1fr; gap: 24px; }
-  .tc-section { padding: 80px 0 60px; }
-  .tc-header { margin-bottom: 60px; }
+  .tc-carousel-container {
+    gap: 24px;
+    --card-width: calc(100% - 40px);
+    padding: 30px 20px 80px;
+  }
+  .tc-carousel-item {
+    width: var(--card-width);
+    min-width: auto;
+    max-width: none;
+  }
+  .tc-section { padding: 50px 0 10px; }
+  .tc-header { margin-bottom: 25px; }
+}
+
+/* ── Controls ── */
+.tc-controls {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.tc-arrow {
+  background: rgba(190, 162, 86, 0.06);
+  border: 1px solid rgba(190, 162, 86, 0.2);
+  color: var(--accent);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.tc-arrow:hover:not(:disabled) {
+  background: var(--accent);
+  color: #0a0a0a;
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(190, 162, 86, 0.4);
+}
+
+.tc-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tc-counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+}
+
+.tc-counter-active {
+  color: var(--accent);
+}
+
+.tc-counter-divider {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.tc-counter-total {
+  color: var(--text-muted);
 }
 
 /* ── Card ── */
 .tc-card {
   position: relative;
-  padding: 40px 36px;
+  padding: 36px 32px;
   border-radius: 24px;
   background: rgba(190, 162, 86, 0.04);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(190, 162, 86, 0.1);
-  min-height: 380px;
+  height: 480px; /* Exact same length/height for all cards, spacious enough to prevent text clipping */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -386,12 +639,15 @@ export default function TestimonialsClient() {
 
 @media (max-width: 768px) {
   .tc-card {
-    padding: 32px 24px;
-    min-height: 320px;
+    padding: 28px 20px;
+    height: 440px;
   }
 }
 @media (max-width: 480px) {
-  .tc-card { padding: 24px 16px; }
+  .tc-card { 
+    padding: 24px 16px; 
+    height: 420px;
+  }
 }
 
 /* ── Corner Orb ── */

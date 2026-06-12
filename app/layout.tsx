@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import LenisProvider from "@/components/LenisProvider";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-black text-white font-sans overflow-x-clip">
         <LenisProvider>
           <main>{children}</main>
+          <WhatsAppButton />
         </LenisProvider>
       </body>
     </html>

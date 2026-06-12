@@ -37,9 +37,9 @@ const HQ_LON = -84.3880;
 function Globe({ globeColor }: { globeColor: string }) {
   return (
     <group>
-      {/* Main Sphere */}
+      {/* Main Sphere — radius 1.8 */}
       <mesh>
-        <sphereGeometry args={[1.5, 64, 64]} />
+        <sphereGeometry args={[1.8, 64, 64]} />
         <meshStandardMaterial
           color={globeColor}
           roughness={0.8}
@@ -51,7 +51,7 @@ function Globe({ globeColor }: { globeColor: string }) {
 
       {/* Wireframe Overlay */}
       <mesh>
-        <sphereGeometry args={[1.52, 24, 16]} />
+        <sphereGeometry args={[1.83, 24, 16]} />
         <meshBasicMaterial
           color="#BEA256"
           wireframe={true}
@@ -62,7 +62,7 @@ function Globe({ globeColor }: { globeColor: string }) {
 
       {/* Atmosphere Glow */}
       <mesh>
-        <sphereGeometry args={[1.65, 32, 32]} />
+        <sphereGeometry args={[1.98, 32, 32]} />
         <meshStandardMaterial
           color="#BEA256"
           transparent={true}
@@ -77,7 +77,7 @@ function Globe({ globeColor }: { globeColor: string }) {
 }
 
 function Pin({ client, isHovered, onHover, isAnyHovered }: any) {
-  const pos = useMemo(() => toSphere(client.lat, client.lon, 1.52), [client]);
+  const pos = useMemo(() => toSphere(client.lat, client.lon, 1.83), [client]);
   const pinRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
@@ -347,9 +347,15 @@ export default function ClientsGlobe() {
   const globeColor = theme === "light" ? "#F0F0FF" : "#0A0A1A";
 
   return (
-    <div style={{ width: "100%", height: "45vh", minHeight: "350px", maxHeight: "450px", background: "transparent" }}>
+    <div style={{
+      width: "100%",
+      height: "72vh",
+      minHeight: "540px",
+      background: "transparent",
+    }}>
+      {/* camera at z=5.2, fov=52 — radius 1.8 globe fits fully in frame */}
       <Canvas
-        camera={{ position: [0, 0, 4.2], fov: 45 }}
+        camera={{ position: [0, 0, 5.2], fov: 52 }}
         gl={{ antialias: true, alpha: true }}
       >
         <Scene globeColor={globeColor} />
@@ -357,3 +363,4 @@ export default function ClientsGlobe() {
     </div>
   );
 }
+
