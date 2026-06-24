@@ -77,7 +77,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative w-full bg-[var(--bg-primary)] border-t border-[var(--border-color)] overflow-hidden px-6 md:px-20 pb-10" style={{ paddingTop: "1cm" }}>
+    <footer className="relative w-full bg-[var(--bg-primary)] border-t border-[var(--border-color)] overflow-hidden pb-10" style={{ paddingTop: "1cm" }}>
       {/* ── Background Glow ── */}
       <div 
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[80%] h-[500px] pointer-events-none"
@@ -86,7 +86,7 @@ export default function Footer() {
         }}
       />
 
-      <div className="relative z-10 w-full" style={{ maxWidth: 1280, margin: "0 auto" }}>
+      <div className="relative z-10 w-full px-6 md:px-10 lg:px-20" style={{ maxWidth: 1280, margin: "0 auto" }}>
         <div className="flex flex-col lg:flex-row justify-between gap-16 mb-24">
           
           {/* ── Left Column ── */}

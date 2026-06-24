@@ -84,34 +84,32 @@ export default function Navbar() {
   const scrollTo = useCallback((href: string) => {
     setMobileOpen(false);
 
-    // If navigating to #services, make sure the section is visible first
-    // (it hides itself on desktop until the zoom transition fires)
+    // For #services: reveal the section first, then scroll using raw offsetTop
+    // (Lenis element-based scrollTo is unreliable while the section is animating)
     if (href === "#services") {
       window.dispatchEvent(new CustomEvent("avalence:servicesReveal"));
+      setTimeout(() => {
+        const el = document.getElementById("services");
+        if (!el) return;
+        const y = el.offsetTop - 88;
+        if (lenis) {
+          lenis.scrollTo(y, { duration: 1.2 });
+        } else {
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      }, 500);
+      return;
     }
 
-    const doScroll = () => {
-      const id = href.replace("#", "");
-      const el = document.getElementById(id);
-      if (!el) return;
+    const id = href.replace("#", "");
+    const el = document.getElementById(id);
+    if (!el) return;
 
-      if (lenis) {
-        // Pass the DOM element directly — Lenis calculates its own position
-        // using the element's offsetTop via its internal wrapper, which is
-        // reliable regardless of CSS transforms on parent elements.
-        lenis.scrollTo(el, { duration: 1.4, offset: -88 });
-      } else {
-        // Fallback: use getBoundingClientRect for viewport-relative position
-        const y = el.getBoundingClientRect().top + window.scrollY - 88;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    };
-
-    // Give ServicesSection a frame to become visible before scrolling
-    if (href === "#services") {
-      requestAnimationFrame(() => requestAnimationFrame(doScroll));
+    if (lenis) {
+      lenis.scrollTo(el, { duration: 1.4, offset: -88 });
     } else {
-      doScroll();
+      const y = el.getBoundingClientRect().top + window.scrollY - 88;
+      window.scrollTo({ top: y, behavior: "smooth" });
     }
   }, [lenis]);
 
@@ -148,6 +146,7 @@ export default function Navbar() {
           <button
             onClick={() => scrollTo("#home")}
             className="flex flex-col items-start select-none group shrink-0"
+            style={{ outline: "none" }}
             aria-label="Scroll to top"
           >
             <span
@@ -157,7 +156,7 @@ export default function Navbar() {
               AVALENCE
             </span>
             <span style={{ fontSize: "9px", color: "var(--accent)", marginTop: "4px", letterSpacing: "0.08em", fontStyle: "italic", opacity: 0.75 }}>
-              simple · scalable · specifically yours
+              simple, scalable, specifically yours
             </span>
           </button>
 
@@ -184,6 +183,7 @@ export default function Navbar() {
                   key={link.href}
                   onClick={() => scrollTo(link.href)}
                   onMouseEnter={(e) => updateUnderline(e.currentTarget)}
+                  style={{ outline: "none" }}
                   className={`
                     nav-btn nav-btn-${link.href.slice(1)}
                     relative text-[14px] font-medium py-1
@@ -231,6 +231,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileOpen((p) => !p)}
             className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] ml-auto"
+            style={{ outline: "none" }}
             aria-label="Toggle mobile menu"
             aria-expanded={mobileOpen}
           >
