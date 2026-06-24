@@ -131,14 +131,15 @@ export default function ParallaxController() {
           toggleActions: "play none none reverse",
         },
       });
+      // Removed initial scale to prevent overlapping layouts when scaling/transforming
       ctaEntranceTl.fromTo(
         ".cta-banner",
-        { scale: 0.92 },
-        { scale: 1.0, duration: 0.8, ease: "power3.out" }
+        { opacity: 0.8 },
+        { opacity: 1.0, duration: 0.8, ease: "power3.out" }
       );
       ctaEntranceTl.fromTo(
         ".cta-text",
-        { y: 40, opacity: 0 },
+        { y: 30, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
         0.2
       );

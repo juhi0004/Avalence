@@ -19,10 +19,10 @@ export default function ClientsSection() {
           <h2
             className="font-bold tracking-tight cs-heading"
             style={{
-              fontSize: "clamp(36px, 4.5vw, 54px)",
-              lineHeight: 1.15,
-              marginBottom: "20px",
-              letterSpacing: "-0.02em",
+              fontSize: "clamp(44px, 5.5vw, 68px)",
+              lineHeight: 1.1,
+              marginBottom: "24px",
+              letterSpacing: "-0.03em",
             }}
           >
             {/* "Trusted" in gold */}

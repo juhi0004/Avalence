@@ -1,125 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-
-// ── Animated silk-mesh canvas background ──────────────────────────────────────
-function SilkMesh() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-    let t = 0;
-
-    // Resize canvas to match parent
-    const resize = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    // Gold colour palette
-    const GOLDS = [
-      "rgba(190, 162, 86,",   // brand gold
-      "rgba(212, 185, 106,",  // light gold
-      "rgba(107, 79, 26,",    // deep amber
-      "rgba(237, 217, 152,",  // champagne
-      "rgba(143, 117, 55,",   // mid gold
-    ];
-
-    // Waving "silk" lines
-    const LINES = 14;
-    const draw = () => {
-      const W = canvas.width;
-      const H = canvas.height;
-
-      ctx.clearRect(0, 0, W, H);
-
-      // Dark base
-      ctx.fillStyle = "#050505";
-      ctx.fillRect(0, 0, W, H);
-
-      for (let l = 0; l < LINES; l++) {
-        const phase     = (l / LINES) * Math.PI * 2;
-        const amplitude = H * (0.12 + (l % 4) * 0.055);
-        const speed     = 0.0008 + l * 0.00015;
-        const yBase     = H * (0.25 + (l / LINES) * 0.52);
-        const colorIdx  = l % GOLDS.length;
-        const alpha     = 0.06 + (l % 5) * 0.028;
-
-        ctx.beginPath();
-        ctx.moveTo(0, yBase);
-
-        for (let x = 0; x <= W; x += 4) {
-          const y =
-            yBase +
-            Math.sin(x * 0.004 + t * speed * 900 + phase) * amplitude * 0.55 +
-            Math.sin(x * 0.002 + t * speed * 600 + phase * 1.4) * amplitude * 0.35 +
-            Math.cos(x * 0.007 + t * speed * 400 + phase * 0.7) * amplitude * 0.1;
-          ctx.lineTo(x, y);
-        }
-
-        // Gradient along the wave width
-        const grad = ctx.createLinearGradient(0, 0, W, 0);
-        grad.addColorStop(0,   `${GOLDS[colorIdx]} 0)`);
-        grad.addColorStop(0.3, `${GOLDS[colorIdx]} ${alpha})`);
-        grad.addColorStop(0.6, `${GOLDS[(colorIdx + 1) % GOLDS.length]} ${alpha * 1.6})`);
-        grad.addColorStop(1,   `${GOLDS[colorIdx]} 0)`);
-
-        ctx.strokeStyle = grad;
-        ctx.lineWidth   = 1 + (l % 3) * 0.7;
-        ctx.stroke();
-      }
-
-      // Soft gold bloom on the right side (matching reference)
-      const bloom = ctx.createRadialGradient(W * 0.78, H * 0.45, 0, W * 0.78, H * 0.45, W * 0.42);
-      bloom.addColorStop(0,   "rgba(190, 162, 86, 0.18)");
-      bloom.addColorStop(0.5, "rgba(190, 162, 86, 0.06)");
-      bloom.addColorStop(1,   "rgba(190, 162, 86, 0)");
-      ctx.fillStyle = bloom;
-      ctx.fillRect(0, 0, W, H);
-
-      // Secondary subtle bloom left
-      const bloom2 = ctx.createRadialGradient(W * 0.18, H * 0.6, 0, W * 0.18, H * 0.6, W * 0.3);
-      bloom2.addColorStop(0,   "rgba(143, 117, 55, 0.12)");
-      bloom2.addColorStop(1,   "rgba(143, 117, 55, 0)");
-      ctx.fillStyle = bloom2;
-      ctx.fillRect(0, 0, W, H);
-
-      t += 1;
-      animId = requestAnimationFrame(draw);
-    };
-
-    draw();
-    return () => {
-      cancelAnimationFrame(animId);
-      ro.disconnect();
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        display: "block",
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
-    />
-  );
-}
-// ─────────────────────────────────────────────────────────────────────────────
+import SilkMesh from "@/components/three/SilkMesh";
 
 export default function CTASection() {
   const scrollToContact = () => {
@@ -128,13 +10,22 @@ export default function CTASection() {
   };
 
   return (
-    <section id="cta" className="section-wrapper" style={{ paddingTop: "60px", paddingBottom: "20px" }}>
+    <section
+      id="cta"
+      className="section-wrapper"
+      style={{
+        paddingTop: "60px",
+        paddingBottom: "20px",
+        // Override the .section-wrapper + .section-wrapper border-top that globals.css adds
+        borderTop: "none",
+      }}
+    >
       <div className="content-container" style={{ maxWidth: "1400px" }}>
         <div
           className="cta-banner relative w-full rounded-[24px] overflow-hidden flex items-center min-h-[420px] shadow-2xl m-0"
           style={{ border: "1px solid rgba(190, 162, 86, 0.18)", background: "#050505" }}
         >
-          {/* ── Silk Mesh Canvas Background ── */}
+          {/* ── Three.js Shader Silk Mesh Background ── */}
           <SilkMesh />
 
           {/* ── Dark edge vignette ── */}
@@ -147,10 +38,13 @@ export default function CTASection() {
             }}
           />
 
-          {/* ── Content ── */}
+          {/* ── Content — padded well away from all container edges ── */}
           <div
-            className="cta-text relative w-full px-10 py-10 md:pl-[80px] md:pr-[60px] md:py-[60px] flex flex-col md:flex-row items-center justify-between gap-12"
-            style={{ zIndex: 2 }}
+            className="cta-text relative w-full flex flex-col md:flex-row items-center justify-between gap-12"
+            style={{
+              zIndex: 2,
+              padding: "64px 80px 64px 120px", // generous left push + top/bottom breathing room
+            }}
           >
             <div className="max-w-3xl w-full">
               <h2 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl text-white leading-[1.1] tracking-tight mb-10">
@@ -176,7 +70,7 @@ export default function CTASection() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
-                  marginTop: 24,
+                  marginTop: 8,
                   backdropFilter: "blur(12px)",
                   WebkitBackdropFilter: "blur(12px)",
                   boxShadow: "0 4px 24px rgba(190, 162, 86, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
@@ -194,11 +88,31 @@ export default function CTASection() {
               </motion.button>
             </div>
 
-            {/* Right spacer so text stays left-aligned like reference */}
+            {/* Right spacer */}
             <div className="hidden lg:block w-full max-w-sm" />
           </div>
         </div>
       </div>
+
+      {/* Remove the bottom divider line that globals.css adds via .section-wrapper + .section-wrapper */}
+      <style>{`
+        #cta.section-wrapper {
+          border-top: none !important;
+        }
+        #cta.section-wrapper + .section-wrapper {
+          border-top: none !important;
+        }
+        @media (max-width: 768px) {
+          .cta-text {
+            padding: 40px 28px 40px 28px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .cta-text {
+            padding: 32px 20px 32px 20px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

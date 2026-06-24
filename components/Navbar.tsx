@@ -156,8 +156,8 @@ export default function Navbar() {
             >
               AVALENCE
             </span>
-            <span style={{ fontSize: "9px", color: "var(--text-muted)", marginTop: "4px", letterSpacing: "0.05em", fontStyle: "italic" }}>
-              simple, scalable, seamlessly yours
+            <span style={{ fontSize: "9px", color: "var(--accent)", marginTop: "4px", letterSpacing: "0.08em", fontStyle: "italic", opacity: 0.75 }}>
+              simple · scalable · specifically yours
             </span>
           </button>
 
