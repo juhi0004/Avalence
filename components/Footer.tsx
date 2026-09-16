@@ -77,9 +77,9 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative w-full bg-[var(--bg-primary)] border-t border-[var(--border-color)] overflow-hidden pb-10" style={{ paddingTop: "1cm" }}>
+    <footer className="relative w-full bg-[var(--bg-primary)] border-t border-[var(--border-color)] overflow-hidden" style={{ paddingTop: "1cm", paddingBottom: "60px" }}>
       {/* ── Background Glow ── */}
-      <div 
+      <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[80%] h-[500px] pointer-events-none"
         style={{
           background: "radial-gradient(ellipse at bottom, rgba(190, 162, 86, 0.15) 0%, transparent 60%)"
@@ -88,19 +88,19 @@ export default function Footer() {
 
       <div className="relative z-10 w-full px-6 md:px-10 lg:px-20" style={{ maxWidth: 1280, margin: "0 auto" }}>
         <div className="flex flex-col lg:flex-row justify-between gap-16 mb-24">
-          
+
           {/* ── Left Column ── */}
           <div className="flex flex-col justify-between max-w-md w-full">
             <div>
-              <a 
-                href="mailto:atom@avalence.ai" 
+              <a
+                href="mailto:atom@avalence.ai"
                 className="text-2xl md:text-3xl font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors inline-flex items-center gap-2 mb-6"
               >
                 atom@avalence.ai
               </a>
               <div className="flex flex-col gap-3 text-[var(--text-muted)]">
                 <a href="#" className="hover:text-[var(--text-primary)] transition-colors inline-flex items-center gap-1 w-fit">
-                  LinkedIn 
+                  LinkedIn
                   <svg className="w-4 h-4 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
@@ -126,7 +126,7 @@ export default function Footer() {
                 <ul className="flex flex-col gap-4">
                   {group.links.map((link) => (
                     <li key={link.name}>
-                      <Link 
+                      <Link
                         href={link.href}
                         className="text-[var(--text-muted)] text-sm hover:text-[var(--text-primary)] hover:underline underline-offset-4 decoration-white/30 transition-all"
                       >
@@ -141,7 +141,10 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom Bar ── */}
-        <div className="flex flex-col justify-start pt-8 border-t border-[var(--border-color)] text-sm text-[var(--text-muted)]">
+        <div
+          className="flex flex-col justify-start text-sm text-[var(--text-muted)]"
+          style={{ paddingTop: "22px", paddingBottom: "10px" }}
+        >
           <p>AVALENCE AI, © 2026. All rights reserved.</p>
         </div>
       </div>

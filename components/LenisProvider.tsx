@@ -42,7 +42,13 @@ function LenisScrollTriggerSync() {
     ScrollTrigger.scrollerProxy(document.body, {
       scrollTop(value?: number) {
         if (value !== undefined) {
-          lenis.scrollTo(value, { immediate: true });
+          // Only allow immediate scroll sets when Lenis is NOT animating
+          // (i.e., not in the middle of a navbar-initiated scrollTo).
+          // When Lenis is animating, the setter is a no-op to prevent
+          // ScrollTrigger.refresh() from overriding the target.
+          if (!lenis.isScrolling) {
+            lenis.scrollTo(value, { immediate: true });
+          }
         }
         return lenis.scroll;
       },

@@ -354,7 +354,8 @@ export default function TestimonialsClient() {
     }, "-=0.9"); // Start 0.3s after heading starts (1.2 - 0.9 = 0.3)
 
     return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
+      tl.scrollTrigger?.kill();
+      tl.kill();
     };
   }, []);
 

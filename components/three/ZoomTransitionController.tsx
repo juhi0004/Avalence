@@ -27,6 +27,18 @@ export default function ZoomTransitionController({
   const hasTriggeredReveal = useRef(false);
   const hasTriggeredReverse = useRef(false);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isNavbarNavigating = useRef(false);
+
+  useEffect(() => {
+    const handleNavStart = () => { isNavbarNavigating.current = true; };
+    const handleNavEnd = () => { isNavbarNavigating.current = false; };
+    window.addEventListener("avalence:navigationStart", handleNavStart);
+    window.addEventListener("avalence:navigationEnd", handleNavEnd);
+    return () => {
+      window.removeEventListener("avalence:navigationStart", handleNavStart);
+      window.removeEventListener("avalence:navigationEnd", handleNavEnd);
+    };
+  }, []);
 
   useEffect(() => {
     if (isMobile) return;
@@ -72,11 +84,6 @@ export default function ZoomTransitionController({
 
     const p = progressRef.current;
     const cam = camera as THREE.PerspectiveCamera;
-
-    // Debug logging (remove after confirming it works)
-    if (Math.floor(state.clock.elapsedTime * 2) % 20 === 0) {
-      console.log("Zoom progress:", progressRef.current.toFixed(3));
-    }
 
     // PHASE 1: Approach (progress 0 → 0.40)
     if (p <= 0.40) {
@@ -166,8 +173,10 @@ export default function ZoomTransitionController({
       if (!hasTriggeredReveal.current && t > 0.3) {
         hasTriggeredReveal.current = true;
         hasTriggeredReverse.current = false;
-        onTransitionComplete();
-        window.dispatchEvent(new CustomEvent("avalence:servicesReveal"));
+        if (!isNavbarNavigating.current) {
+          onTransitionComplete();
+          window.dispatchEvent(new CustomEvent("avalence:servicesReveal"));
+        }
       }
     }
   });

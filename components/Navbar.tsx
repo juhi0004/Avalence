@@ -84,32 +84,82 @@ export default function Navbar() {
   const scrollTo = useCallback((href: string) => {
     setMobileOpen(false);
 
-    // For #services: reveal the section first, then scroll using raw offsetTop
-    // (Lenis element-based scrollTo is unreliable while the section is animating)
-    if (href === "#services") {
-      window.dispatchEvent(new CustomEvent("avalence:servicesReveal"));
-      setTimeout(() => {
-        const el = document.getElementById("services");
-        if (!el) return;
-        const y = el.offsetTop - 88;
-        if (lenis) {
-          lenis.scrollTo(y, { duration: 1.2 });
-        } else {
-          window.scrollTo({ top: y, behavior: "smooth" });
-        }
-      }, 500);
-      return;
-    }
-
     const id = href.replace("#", "");
-    const el = document.getElementById(id);
-    if (!el) return;
 
-    if (lenis) {
-      lenis.scrollTo(el, { duration: 1.4, offset: -88 });
+    // Dispatch navigation start so other components can suppress their side effects
+    window.dispatchEvent(
+      new CustomEvent("avalence:navigationStart", { detail: { target: id } })
+    );
+
+    const performScroll = () => {
+      const finishNavigation = () => {
+        window.dispatchEvent(new CustomEvent("avalence:navigationEnd"));
+      };
+
+      if (id === "home") {
+        if (lenis) {
+          const fallbackTimeout = setTimeout(finishNavigation, 3000);
+          lenis.scrollTo(0, {
+            duration: 1.2,
+            onComplete: () => {
+              clearTimeout(fallbackTimeout);
+              finishNavigation();
+            },
+          });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          setTimeout(finishNavigation, 1500);
+        }
+        return;
+      }
+
+      const el = document.getElementById(id);
+      if (!el) {
+        finishNavigation();
+        return;
+      }
+
+      const targetEl =
+        (el.querySelector(".content-container") as HTMLElement) ||
+        (el.firstElementChild as HTMLElement) ||
+        el;
+
+      // Use offsetTop (layout position) of the content container instead of getBoundingClientRect().top
+      // because <main> has perspective: 1200px and ParallaxController applies 3D transforms.
+      // Targeting .content-container accounts for section-wrapper top padding so section content
+      // starts immediately below the 88px navbar.
+      let docTop = 0;
+      let current: HTMLElement | null = targetEl;
+      while (current) {
+        docTop += current.offsetTop;
+        current = current.offsetParent as HTMLElement | null;
+      }
+      const target = Math.max(0, docTop - 88);
+
+      if (lenis) {
+        // Fallback safety timeout in case onComplete doesn't fire
+        const fallbackTimeout = setTimeout(finishNavigation, 3000);
+        lenis.scrollTo(target, { 
+          duration: 1.4, 
+          onComplete: () => {
+            clearTimeout(fallbackTimeout);
+            finishNavigation();
+          }
+        });
+      } else {
+        window.scrollTo({ top: target, behavior: "smooth" });
+        setTimeout(finishNavigation, 1500); // Fallback for native scroll
+      }
+    };
+
+    // If navigating to Services or Blog, force-reveal Services first to ensure layout is complete
+    if (id === "services" || id === "blog") {
+      window.dispatchEvent(new CustomEvent("avalence:servicesReveal"));
+      // Note: no ScrollTrigger.refresh() here — offsetTop is immune to transforms
+      // and refresh() can interfere with Lenis via the scrollerProxy setter
+      performScroll();
     } else {
-      const y = el.getBoundingClientRect().top + window.scrollY - 88;
-      window.scrollTo({ top: y, behavior: "smooth" });
+      performScroll();
     }
   }, [lenis]);
 

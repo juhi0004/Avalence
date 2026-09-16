@@ -35,12 +35,27 @@ export default function HeroSection() {
   const [transitionComplete, setTransitionComplete] = useState(false);
   const isDark = true;
   const lenis = useLenis();
+  const isNavbarNavigating = useRef(false);
+
+  useEffect(() => {
+    const handleNavStart = () => { isNavbarNavigating.current = true; };
+    const handleNavEnd = () => { isNavbarNavigating.current = false; };
+    window.addEventListener("avalence:navigationStart", handleNavStart);
+    window.addEventListener("avalence:navigationEnd", handleNavEnd);
+    return () => {
+      window.removeEventListener("avalence:navigationStart", handleNavStart);
+      window.removeEventListener("avalence:navigationEnd", handleNavEnd);
+    };
+  }, []);
 
   /* ── Brain click & Auto-scroll handler ── */
   const handleBurst = () => {
     if (transitionComplete) return;
     setShowGlow(true);
     setTimeout(() => setShowGlow(false), 600);
+
+    // Prevent overriding navbar navigation
+    if (isNavbarNavigating.current) return;
 
     if (lenis) {
       lenis.scrollTo("#contact", { duration: 1.5, lock: false });
@@ -52,6 +67,7 @@ export default function HeroSection() {
   // Single scroll auto-play
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      if (isNavbarNavigating.current) return;
       if (e.deltaY > 0 && window.scrollY < 50 && !transitionComplete) {
         handleBurst();
       }

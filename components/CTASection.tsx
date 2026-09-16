@@ -59,10 +59,10 @@ export default function CTASection() {
               <motion.button
                 onClick={scrollToContact}
                 style={{
-                  background: "rgba(190, 162, 86, 0.15)",
-                  color: "#BEA256",
-                  border: "1.5px solid rgba(190, 162, 86, 0.45)",
-                  borderRadius: 12,
+                  background: "#BEA256",
+                  color: "#0a0a0a",
+                  border: "none",
+                  borderRadius: 999,
                   padding: "14px 36px",
                   fontSize: 15,
                   fontWeight: 600,
@@ -71,16 +71,15 @@ export default function CTASection() {
                   alignItems: "center",
                   gap: 8,
                   marginTop: 8,
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                  boxShadow: "0 4px 24px rgba(190, 162, 86, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
+                  boxShadow: "0 4px 16px rgba(190, 162, 86, 0.25)",
                   transition: "all 0.3s ease",
                   letterSpacing: "0.3px",
+                  outline: "none"
                 }}
                 whileHover={{
-                  background: "rgba(190, 162, 86, 0.28)",
-                  boxShadow: "0 8px 32px rgba(190, 162, 86, 0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
-                  borderColor: "rgba(190, 162, 86, 0.7)",
+                  background: "#c9a961",
+                  boxShadow: "0 8px 32px rgba(190, 162, 86, 0.4)",
+                  transform: "translateY(-2px)",
                 }}
                 whileTap={{ scale: 0.96 }}
               >

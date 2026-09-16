@@ -146,9 +146,11 @@ export default function ParticleTunnel() {
 
     const sections = document.querySelectorAll(".section-wrapper");
 
+    const triggers: ScrollTrigger[] = [];
+
     // Create ScrollTriggers for each section transition to show the tunnel
     sections.forEach((section) => {
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: section,
         start: "top 80%",
         end: "top 20%",
@@ -167,10 +169,11 @@ export default function ParticleTunnel() {
           }
         },
       });
+      triggers.push(st);
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
+      triggers.forEach((t) => t.kill());
     };
   }, []);
 
