@@ -56,7 +56,18 @@
 }
 
 /* Apply Satoshi to all headings */
-h1, h2, h3, h4, h5, h6, .tc-heading, .heading, .typewriter-heading, [class*="text-5xl"], [class*="text-6xl"], [class*="text-4xl"] {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.tc-heading,
+.heading,
+.typewriter-heading,
+[class*="text-5xl"],
+[class*="text-6xl"],
+[class*="text-4xl"] {
   font-family: 'Satoshi', sans-serif !important;
 }
 
@@ -83,11 +94,13 @@ a {
   text-decoration: none;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
-img, video {
+img,
+video {
   max-width: 100%;
   display: block;
 }
@@ -101,7 +114,24 @@ button {
 }
 
 /* Smooth transitions on specific properties */
-a, button, input, textarea, select, div, section, nav, header, footer, p, h1, h2, h3, h4, h5, h6, span {
+a,
+button,
+input,
+textarea,
+select,
+div,
+section,
+nav,
+header,
+footer,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span {
   transition: background-color 0.4s ease, border-color 0.4s ease, color 0.35s ease, box-shadow 0.35s ease;
 }
 
@@ -137,6 +167,7 @@ a, button, input, textarea, select, div, section, nav, header, footer, p, h1, h2
 
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -154,7 +185,7 @@ a, button, input, textarea, select, div, section, nav, header, footer, p, h1, h2
 }
 
 /* Ensure no two sections ever touch with zero gap */
-section + section {
+section+section {
   margin-top: 0;
 }
 
@@ -167,19 +198,27 @@ section + section {
 }
 
 @media (max-width: 1280px) {
-  .section-wrapper { padding: 100px 60px; }
+  .section-wrapper {
+    padding: 100px 60px;
+  }
 }
 
 @media (max-width: 1024px) {
-  .section-wrapper { padding: 80px 40px; }
+  .section-wrapper {
+    padding: 80px 40px;
+  }
 }
 
 @media (max-width: 768px) {
-  .section-wrapper { padding: 60px 24px; }
+  .section-wrapper {
+    padding: 60px 24px;
+  }
 }
 
 @media (max-width: 480px) {
-  .section-wrapper { padding: 48px 16px; }
+  .section-wrapper {
+    padding: 48px 16px;
+  }
 }
 
 /* Global container for inner content max width */
@@ -189,13 +228,20 @@ section + section {
   margin: 0 auto;
 }
 
-.section-wrapper + .section-wrapper {
+.section-wrapper+.section-wrapper {
   border-top: 1px solid var(--divider);
 }
 
 @keyframes pulseHint {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .hint-pulse {
@@ -255,9 +301,17 @@ button[type="submit"],
 }
 
 @keyframes buttonGlitter {
-  0% { transform: translateX(-150%) skewX(-30deg); }
-  50% { transform: translateX(150%) skewX(-30deg); }
-  100% { transform: translateX(150%) skewX(-30deg); }
+  0% {
+    transform: translateX(-150%) skewX(-30deg);
+  }
+
+  50% {
+    transform: translateX(150%) skewX(-30deg);
+  }
+
+  100% {
+    transform: translateX(150%) skewX(-30deg);
+  }
 }
 
 .cta-button::after,
@@ -269,12 +323,10 @@ button[type="submit"]::after,
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 100%);
   transform: translateX(-150%) skewX(-30deg);
   animation: buttonGlitter 3s infinite;
 }
@@ -284,7 +336,8 @@ button[type="submit"]:hover,
 .cta-button:hover,
 [data-cta="true"]:hover,
 .primary-button:hover {
-  background: #d4bc78; /* lighter on hover */
+  background: #d4bc78;
+  /* lighter on hover */
   box-shadow: 0 8px 32px rgba(190, 162, 86, 0.4);
   transform: translateY(-2px);
 }
@@ -571,4 +624,3 @@ select {
     font-size: 16px !important;
   }
 }
-

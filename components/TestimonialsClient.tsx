@@ -198,7 +198,7 @@ function TestimonialCard({
               <span key={i}>★</span>
             ))}
           </div>
-          
+
           {index === 0 && (
             <span style={{
               background: "#BEA256",
@@ -344,14 +344,14 @@ export default function TestimonialsClient() {
       ease: "power3.out",
       stagger: 0.04,
     })
-    // Subheading soft fade
-    .to(sub, {
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      duration: 1,
-      ease: "power2.out",
-    }, "-=0.9"); // Start 0.3s after heading starts (1.2 - 0.9 = 0.3)
+      // Subheading soft fade
+      .to(sub, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 1,
+        ease: "power2.out",
+      }, "-=0.9"); // Start 0.3s after heading starts (1.2 - 0.9 = 0.3)
 
     return () => {
       tl.scrollTrigger?.kill();
@@ -390,8 +390,8 @@ export default function TestimonialsClient() {
 
       {/* 3D Carousel Wrapper */}
       <div className="tc-carousel-wrapper">
-        <div 
-          ref={containerRef} 
+        <div
+          ref={containerRef}
           className="tc-carousel-container"
           onScroll={handleScroll}
         >
@@ -410,7 +410,7 @@ export default function TestimonialsClient() {
 
         {/* Carousel Controls */}
         <div className="tc-controls">
-          <button 
+          <button
             onClick={() => scrollToIndex(currentIndex - 1)}
             disabled={currentIndex === 0}
             className="tc-arrow tc-arrow-left"
@@ -418,7 +418,7 @@ export default function TestimonialsClient() {
           >
             ←
           </button>
-          
+
           <div className="tc-counter">
             <span className="tc-counter-active">
               {String(currentIndex + 1).padStart(2, '0')}
@@ -429,7 +429,7 @@ export default function TestimonialsClient() {
             </span>
           </div>
 
-          <button 
+          <button
             onClick={() => scrollToIndex(currentIndex + 1)}
             disabled={currentIndex === TESTIMONIALS.length - 1}
             className="tc-arrow tc-arrow-right"
@@ -455,7 +455,7 @@ export default function TestimonialsClient() {
 /* ── Section ── */
 .tc-section {
   position: relative;
-  padding: 50px 0 10px;
+  padding: 0 0 10px;
 }
 
 /* ── Header ── */
@@ -465,13 +465,13 @@ export default function TestimonialsClient() {
 }
 
 .tc-heading {
-  font-size: clamp(44px, 6vw, 72px);
-  font-weight: 900;
+  font-size: clamp(32px, 6vw, 54px);
+  font-weight: 600;
   font-family: 'Satoshi', sans-serif;
   color: var(--text-primary);
   margin-bottom: 16px;
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 0.9;
 }
 
 .tc-subheading {

@@ -15,7 +15,7 @@ export default function CTASection() {
       className="section-wrapper"
       style={{
         paddingTop: "60px",
-        paddingBottom: "20px",
+        paddingBottom: "20p0",
         // Override the .section-wrapper + .section-wrapper border-top that globals.css adds
         borderTop: "none",
       }}
